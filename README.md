@@ -40,9 +40,9 @@ This package includes files related to cubic spline interpolation. These files u
 * `SplineInterpolation.java`
   * **Summary**: Provides an implementation of the cubic spline interpolator using the methods provided by the Apache Commons Math library. **Constructed** with the gap length of the particular dataset. It can interpolate both time series and trajectory data.
   * **Methods**
-    * `setTS(double[])` - called with the time series as a parameter in the form of an array of doubles
+    * `setTS(double[])` - called with the time series as a parameter. The time series must be an array of doubles
     * `setTraj(String, String)` - used to pass the trajectory data. Two string parameters: one is the latitude values while the other is the longitude values (both should be comma seperated values stored as a single string).
     * `string[] interpolateTraj()` - returns the interpolated trajectory as a list of strings formatted to the structure of GeoLife data (i.e. latitude, longitude, 0, altitude, etc...) where the non-trajectory values are fixed.
     * `double[] interpolateTS()` - returns the interpolated time series as an array of doubles.
     * `int getNumInt` - can only be called after one of the interpolate methods. Returns the number of points that were interpolated.
-  * **Imports**:
+  * **Imports**: `org.apache.commons.math3.analysis.UnivariateFunction`, `org.apache.commons.math3.analysis.interpolation.SplineInterpolator`,`org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator`, and `OrderPoints` (from the `main` package).
