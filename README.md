@@ -38,5 +38,5 @@ This package includes files related to cubic spline interpolation. These files u
   * **Summary**: Performs the same function as `CubicSplineMainTraj.java` but with time series data. Reads data from `Time_series_wtih_gaps` and writes to `Cubic_TS`.
   * **Imports**: `writeToFile`
 * `SplineInterpolation.java`
-  * **Summary**: Provides an implementation of the cubic spline interpolator using the methods provided by the Apache Commons Math library. <u>Constructed</u> with the gap length of the particular dataset. 
+  * **Summary**: Provides an implementation of the cubic spline interpolator using the methods provided by the Apache Commons Math library. <em>Constructed</em> with the gap length of the particular dataset. 
   * **Imports**:
