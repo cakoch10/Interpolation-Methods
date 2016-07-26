@@ -13,4 +13,4 @@ The Java project is divided into six packages. Each package includes `.java` fil
 ##Java files
 
 ### `cubic`
-This package includes files related to cubic spline interpolation. These files use the 
+This package includes files related to cubic spline interpolation. These files use the [math library](http://commons.apache.org/proper/commons-math/) of [Apache Commons](http://commons.apache.org/) and implement a [natural cubic spline interpolator](http://www.math.drexel.edu/~tolya/cubicspline.pdf).
