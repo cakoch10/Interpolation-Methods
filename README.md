@@ -19,13 +19,12 @@ The general procedure for testing an interpolation method involves
 
 Typically each step is a separate java program.
 
-##Java files
+##Java packages and files
 
 ### `cubic`
 This package includes files related to cubic spline interpolation. These files use the [math library](http://commons.apache.org/proper/commons-math/) of [Apache Commons](http://commons.apache.org/) and implement a [natural cubic spline interpolator](http://www.math.drexel.edu/~tolya/cubicspline.pdf).
 
 * `CubicErrorTraj.java`
-
   * **Summary**: Reads orignal trajectory files and cubic interpolated trajectories (located in the `Cubic_Traj` folder). Each pair of files (the actual trajectory and the corresponding interpolated trajectory) is compared using the `error` class. The kilometers, kilometers squared, and distance for each trajectory is stored in an array. This values are then written to a `.plt` file (specifically the `CubicErrorTraj.plt` file located in the `Error_Analysis` folder. Note that the distance returned is the total distance of the trajectory (rather than the distance of the interpolated gap).
   * **Imports**: `error.java` and `writeToFile`; both are from the `main` package.
 * `CubicErrorTS.java`
@@ -46,3 +45,21 @@ This package includes files related to cubic spline interpolation. These files u
     * `double[] interpolateTS()` - returns the interpolated time series as an array of doubles.
     * `int getNumInt` - can only be called after one of the interpolate methods. Returns the number of points that were interpolated.
   * **Imports**: `org.apache.commons.math3.analysis.UnivariateFunction`, `org.apache.commons.math3.analysis.interpolation.SplineInterpolator`,`org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator`, and `OrderPoints` (from the `main` package).
+
+### `linear_NearestNeighbor`
+This package include the files that implement the linear and nearest neighbor interpolation methods. 
+* `LinearInterpolationMainTraj.java`
+
+
+### `main`
+
+
+### `other`
+
+
+
+### `polynomial`
+
+
+
+### `velocity_model`
