@@ -13,4 +13,4 @@ The Java project is divided into six packages. Each package includes `.java` fil
 ##Java files
 
 ### `cubic`
-This package includes files related to cubic spline interpolation. 
+This package includes files related to cubic spline interpolation. These files use the 
