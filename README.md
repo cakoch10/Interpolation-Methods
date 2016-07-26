@@ -1,3 +1,6 @@
+---
+output: html_document
+---
 # Interpolation-Methods
 *A collection of programs for implementing and testing various interpolation methods.*
 
@@ -47,12 +50,43 @@ This package includes files related to cubic spline interpolation. These files u
   * **Imports**: `org.apache.commons.math3.analysis.UnivariateFunction`, `org.apache.commons.math3.analysis.interpolation.SplineInterpolator`,`org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator`, and `OrderPoints` (from the `main` package).
 
 ### `linear_NearestNeighbor`
-This package include the files that implement the linear and nearest neighbor interpolation methods. 
+This package includes the files that implement the linear and nearest neighbor interpolation methods. 
 * `LinearInterpolationMainTraj.java`
+  * **Summary**: Retrieves trajectory files with gaps from the folder `Trajectory_with_gaps`. Applies the linear interpolation algoirithm and writes the new files to the folder `LinInt_Traj`.
+  * **Imports**: `writeToFile` from the `main` package.
+* `linInterp.java`
+  * **Summary**: Given two strings each of which is a line (with the same format as a line from the GeoLife dataset) containing the latitude and longitude values, this program will return either a linearly interpolated dataset or a nearest neighbor interpolated dataset. It's **constructed** with the start string, end string, the length of the gap, and a boolean value denoting whether to include the start and end strings in the list of values returned after interpolation. This program is used specifically for trajectory data.
+  * **Methods**
+    * `extractInfo()` - this method extracts latitude and longitude values from the provided strings. It must be called before the other methods.
+    * `interpolate()` - performs linear interpolation on the given data
+    * `NNinterpolate()` - performs nearest neighbor interpolation on the given data
+    * `string[] getPoints()` - accessor method for retrieving the the list of interpolated points
+* `linTS`
+  * **Summary**: Applies linear interpolation to time series data. Reads from `Time_series_with_gaps` and writes to `Lin_TS`.
+* `NearestNeighbor.java`
+  * **Summary**: The main program for performing nearest neighbor interpolation on trajectory files. Reads from `Trajectory_with_gaps` folder and writes to `NN_traj` folder.
+  * **Imports**: `writeToFile` from `main`.
+* `NearestNeighborTS.java`
+  * **Summary**: The main program for applying nearest neighbor interpolation to time series data. Reads from `Time_series_with_gaps` and writes to `NN_TS`. 
+* `SimpleTS.java`
+  * **Summary**: Provides implementations for linear and nearest neighbor interpolation methods applied to time series data. **Constructed** with four integers: the start hilbert value, end hilbert value, start index, and end index. 
+  * **Methods**
+    * `linearInterpolation()` - creates interpolation points by fitting a linear model to the data provided.
+    * `nearestNeighbor()` - performs nearest neighbor interpolation on the given data.
+    * `double[] getInterpolatedValues()` - accessor method that returns the interpolated points. Must be called after one of the interpolation methods.
+* `trajectoryErrorMain.java`
+  * **Summary**: Calculates the error associated with linear trajectories and nearest neighbor trajectories. Reads actual files from main directory (i.e. `trajectory`) while also importing files from the `LinInt_Traj` and `NN_Traj` folders. Writes the errors to the `Error_Analysis` folder (creates two files: `NNerrorTraj.plt` and `LinerrroTraj.plt`).
+  * **Imports**: `error` and `writeToFile` (both from main)
+* `tsErrorMain.java`
+  * **Summary**: Calculates error from linear and nearest neighbor time series. Reads from the folders `Original_TS`, `Lin_TS`, and `NN_TS`. Writes the error values to the `Error_Analysis` folder as `NNerror.plt` and `Linerror.plt`.
+  * **Imports**: `tsError` and `writeToFile` (from main)
 
 
 ### `main`
-
+This package includes general programs that are used by other files to execute specific tasks.
+* `error.java`
+  * **Summary**:
+  * **Imports**:
 
 ### `other`
 
