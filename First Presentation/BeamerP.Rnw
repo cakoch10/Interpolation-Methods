@@ -1,0 +1,879 @@
+\documentclass[]{beamer}
+%aspectratio=169
+\usetheme{Boadilla}
+\usecolortheme{beaver}
+
+\setbeamertemplate{footline}[frame number]{}
+
+\date{July 2016}
+\author{Caleb Koch}
+\title{Methods of Interpolation}
+\institute{Geospatial Research Laboratory}
+\subtitle{A Comparative Analysis to Identify Optimal Techniques for Mining Trajectory Data}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage{nicefrac}
+\usepackage{amsfonts}
+\usepackage{algorithmicx}
+\usepackage{comment}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{nicefrac}
+\usepackage{multirow}
+
+\usepackage{pgfpages}
+%\pgfpagesuselayout{2 on 1}[a4paper,border shrink=5mm]
+
+\DeclareMathOperator{\dist}{dist}
+
+
+\usepackage{booktabs}
+\usepackage{adjustbox}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows}
+
+\usepackage{hyperref}
+%\hypersetup{pdfpagemode=FullScreen}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE, height=5, width=8}
+\setkeys{Gin}{width=4in}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+
+\section{Problem Overview}
+
+\setbeamercovered{transparent}
+
+\begin{frame}
+\frametitle{Problem Statement}
+\onslide<1>{Spatiotemporal trajectory data often consist of gaps and missing points due to errors in the collection procedure.}
+\newline
+
+\onslide<2>{Researchers employ interpolation methods to fill in these gaps.}
+\newline
+
+\onslide<3>{Lots of different interpolation methods exist for different applications.}
+\newline
+
+\onslide<4>{The problem is to identify and assess the interpolation methods that could potentially work with trajectories mined using mSEQUITUR.}
+\end{frame}
+
+
+%potentialy include an example of a trajectory and its gaps
+
+\subsection{Preliminaries}
+\begin{frame}[c]
+\frametitle{Processing with mSEQUITUR}
+
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+    text width=11em, text centered, rounded corners, minimum height=3em]
+\tikzstyle{line} = [draw, -latex']
+
+\begin{center}
+\begin{tikzpicture}[node distance = 1.5cm, auto]
+    \node [block] (cell) {Linearization};
+    \node [block, below of=cell] (region) {Discretization};
+    \node [block, below of=region] (gen) {Grammar Induction};
+    \node [block, below of=gen] (multi) {Motif Discovery};
+
+    \path [line] (cell) -- (region);
+    \path [line] (region) -- (gen);
+    \path [line] (gen) -- (multi);
+\end{tikzpicture}
+\end{center}
+
+Considerations:
+\begin{itemize}
+  \item Interpolation can take place at multiple steps
+  \item Benefits and drawbacks of each
+  \item Using motifs to obtain greater precision
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Current Approach and Associated Issues}
+Current approach uses linear interpolation.
+
+\centering
+<<fig=TRUE, echo=FALSE, cache=TRUE>>=
+linearData = read.table("C:/test/lin1.txt", header = FALSE, quote = "\"", skip = 0, sep="\t")
+x1 <- linearData$V1
+y1 <- linearData$V2
+trajData = read.table("C:/test/traj1.txt")
+x2 <- trajData$V1
+y2 <- trajData$V2
+
+linearData2 = read.table("C:/test/lin2.txt", header = FALSE, quote = "\"", skip = 0, sep="\t")
+xl2 <- linearData2$V1
+yl2 <- linearData2$V2
+linearData3 = read.table("C:/test/lin3.txt", header = FALSE, quote = "\"", skip = 0, sep="\t")
+xl3 <- linearData3$V1
+yl3 <- linearData3$V2
+linearData4 = read.table("C:/test/lin4.txt", header = FALSE, quote = "\"", skip = 0, sep="\t")
+xl4 <- linearData4$V1
+yl4 <- linearData4$V2
+
+trajData2 = read.table("C:/test/traj2.txt")
+xt2 <- trajData2$V1
+yt2 <- trajData2$V2
+trajData3 = read.table("C:/test/traj3.txt")
+xt3 <- trajData3$V1
+yt3 <- trajData3$V2
+trajData4 = read.table("C:/test/traj4.txt")
+xt4 <- trajData4$V1
+yt4 <- trajData4$V2
+
+library(ggplot2)
+# qplot(trajData$V1, trajData$V2, ylab = "Latitude", xlab = "Longitude")
+
+t1 <- ggplot(aes(x = x1, y = y1, color="black"), data=linearData) + geom_point(size=0.5, color="#070688") + geom_point(size=0.5, aes(x = x2, y = y2), color="#898da9", data=trajData) + geom_line(aes(x = x2, y = y2), color="#898da9", data=trajData) + labs(x = "Longitude", y = "Latitude") + ggtitle("Trajectory One")
+
+t3 <- ggplot(aes(x = xl2, y = yl2, color="black"), data=linearData2) + geom_point(size=0.5, color="#070688") + geom_point(size=0.5, aes(x = xt2, y = yt2), color="#898da9", data=trajData2) +geom_line(aes(x = xt2, y = yt2), color="#898da9", data=trajData2) + labs(x = "Longitude", y = "Latitude") + ggtitle("Trajectory Three")
+
+t4 <- ggplot(aes(x = xl3, y = yl3, color="black"), data=linearData3) + geom_point(size=0.5, color="#070688") + geom_point(size=0.5, aes(x = xt3, y = yt3), color="#898da9", data=trajData3)  + geom_line(aes(x = xt3, y = yt3), color="#898da9", data=trajData3) + labs(x = "Longitude", y = "Latitude") + ggtitle("Trajectory Four")
+
+t2 <- ggplot(aes(x = xl4, y = yl4, color="black"), data=linearData4) + geom_point(size=0.5, color="#070688") + geom_point(size=0.5, aes(x = xt4, y = yt4), color="#898da9", data=trajData4) + geom_line(aes(x = xt4, y = yt4), color="#898da9", data=trajData4) + labs(x = "Longitude", y = "Latitude") + ggtitle("Trajectory Two")
+
+library(grid)
+library(gridExtra)
+grid.arrange(t1, t2, t3, t4, ncol=2)
+@
+
+Linear interpolation appears highly innaccurate.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Summaries of Error}
+\vspace{-0.3cm}
+\begin{table}[]
+\centering
+\label{Errors}
+\adjustbox{max height=\dimexpr\textheight-5.5cm\relax,
+          max width=\textwidth}{
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+Number of points & Distance (km) of error & Distance (km) traveled & Duration (hours) & Error (km) per min \\ \midrule
+6077             & 40322.53968            & 59.62520373            & 8.83             & 76.10898391        \\
+2297             & 9403.933131            & 35.53018522            & 3.31             & 47.35112352        \\
+555              & 375.9281143            & 5.062658871            & 0.51             & 12.28523249        \\
+215              & 35.42083656            & 1.742807734            & 0.22             & 2.683396709        \\ \bottomrule
+\end{tabular}
+}
+\end{table}
+
+\centering
+<<fig=TRUE, echo=FALSE, cache=TRUE>>=
+error <- read.delim("C:/test/error.txt", header=FALSE)
+x <- error$V1
+y <- error$V2
+library(ggplot2)
+qplot(x, y, xlab="Gap Size", ylab="Distance of Error (km)", main = "Level of Error", geom=c("point", "path"))
+@
+\end{frame}
+
+\begin{frame}{Summaries of Error}
+\centering
+<<fig=TRUE, echo=FALSE, cache=TRUE>>=
+error <- read.delim("C:/test/error.txt", header=FALSE)
+x <- error$V1
+y <- error$V2
+library(ggplot2)
+qplot(x, y, xlab="Gap Size", ylab="Distance of Error (km)", main = "Level of Error", geom=c("point", "path"))
+@
+
+Assuming a linear relationship, there is an increase of approximately 7 kilometers for each interpolated point.
+\end{frame}
+
+
+\section{Methods of Interpolation}
+\begin{frame}{Characteristics of an Interpolation Method}
+An interpolation method is defined by a series of unique characteristics including
+\begin{itemize}
+  \item Local/global
+  \item Exact/inexact
+  \item Deterministic/stochastic
+  \item Complexity
+\end{itemize}
+Throughout our analysis, we consider which characteristics are more suitable than others
+\end{frame}
+
+\begin{frame}{Potential Methods}
+\begin{columns}
+\column{0.5\textwidth}
+\begin{itemize}
+  \item <1>{Barnes interpolation}
+  \item <1,2>{Spline interpolation}
+  \item <1,2>{Polynomial Curve Fitting}
+  \item <1,2>{Bilinear}
+  \item <1>{Kriging}
+  \item <1>{Principal curve detection (Biau \& Fischer, 2012)}
+  \item <1,2>{Frequent trajectory mining (Savage et al., 2010)}
+  \item <1,2>{Linear interpolation}
+\end{itemize}
+
+\column{0.5\textwidth}
+\begin{itemize}
+  \item <1,2>{Neural network/machine learning}
+  \item <1,2>{Probabilistic modeling}
+  \item <1,2>{Nearest Neighbor}
+  \item <1>{Natural Neighbor}
+  \item <1>{Inverse distance weighting}
+  \item <1,2>{Latent statistical model (Kishonishita et al., 2016)}
+  \item <1>{Dynamic time warping-based similarity (Sankararaman et al., 2013)}
+\end{itemize}
+\end{columns}
+\end{frame}
+
+\setbeamercovered{invisible}
+
+
+\section{Experimentation}
+\subsection{Standardization}
+\begin{frame}{Testing Interpolation Methods}
+We need a standard framework for assessing accuracy.
+\newline
+
+General outline:
+\begin{enumerate}
+  \item <1->Select a sample group of trajectories representing a range of features (i.e. length)
+  \item <2->Generate a range of artificial gaps
+  \item <3->Use interpolation method to fill in the gaps
+  \item <4->Run error analysis
+  \item <5->Compare errors by calculating representative inaccuracies
+\end{enumerate}
+\end{frame}
+
+\subsection{Steps Overview}
+\begin{frame}{Selecting trajectories}
+\begin{enumerate}
+  \item[1.] Select a sample group of trajectories representing a range of features (i.e. length)
+\end{enumerate}
+Geolife dataset offers a record of GPS trajectories for more than 150 users over four years.
+\pause
+Points are normally recorded every 5 seconds.
+\pause
+Trajectories range in size from less than 10 points (less than 30 seconds) to more than 45,000 (more than 24 hours).
+\pause
+Our selection includes
+\begin{itemize}
+  \item<1-> 20 trajectories
+  \item<2-> Variety acheived through file size
+  \item<3-> Largest trajectory is $\approx 3480$ KB, smallest is $\approx 15$ KB
+  \item<4-> Every other is within roughly $\pm 100$ KB of the next largest/smallest file
+\end{itemize}
+\end{frame}
+
+
+
+
+\begin{frame}{Creation of Gaps}
+\begin{enumerate}
+  \item[2.] Generate a range of artificial gaps
+\end{enumerate}
+\begin{block}{Trajectory Representation}
+Denote the 20 trajectories as a set $T = \{t_1, t_2, ..., t_{20}\}$ where $t$ is a trajectory and 
+$$
+|t_{n-1}| < |{t_n}| < |t_{n+1}|, \forall~t \in T.
+$$
+\end{block}
+
+Let $g_n$ give the gap length for trajectory $t_n$. The value of $g_n$ depends on the size of trajectory $t_n$.
+\end{frame}
+
+\begin{frame}{Selection of $g_n$}
+The following algorithm summarizes the selection of $g_n$.
+
+\begin{algorithm}[H]
+\begin{algorithmic}[1]
+\State $n \gets 1$
+\While{$n\leq 20$}
+\If{$n=1$}
+  \State $g_n \gets 50$ \Comment{smallest gap size}
+\ElsIf{$n=20$}
+  \State $g_n \gets 1950$ \Comment{largest gap size}
+\ElsIf{$n \pmod{2} \equiv 0$}
+  \State $g_n = 50n + 50$
+\Else
+  \State $g_n = 2000 - 50n$
+\EndIf
+\State $n \gets n+1$
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+\end{frame}
+
+\begin{frame}{Visualizing the gap length selection}
+\begin{block}{Gap Sizes}
+\centering
+<<fig=TRUE,cache=TRUE,echo=FALSE>>=
+info <- read.table("C:/test/trajectory/information/info.txt", header=FALSE)
+x <- info$V1
+y <- info$V2
+plot(x,y, pch=16, ylab="Size of Gap", xlab = "File Size (KB)")
+grid(col="black")
+@
+\end{block}
+\end{frame}
+
+\begin{frame}{Applying Interpolation}
+\begin{enumerate}
+  \item[3.] Use interpolation method to fill in the gaps
+\end{enumerate}
+Requires an implementation of the method.
+\newline
+
+Some implementations suitable for this particular type of analysis exist and are accessible; others are not.
+\newline
+
+Create a new trajectory $t'$ for each original trajectory. 
+\end{frame}
+
+
+\begin{frame}{Error Analysis}
+\begin{enumerate}
+  \item[4.] Run error analysis
+\end{enumerate}
+Total error for a particular dataset is denoted $e_n$. We can determine $e_n$ by the following.
+
+\begin{itemize}
+  \item Consider a point $p_i\in t_n$
+  \item For each $p_i$, there is a corresponding $p'_i \in t'_n$
+  \item Let $d_i$ denote the distance between $p_i$ and $p'_i$
+  \item Then $e_n = \sum d_i$
+\end{itemize}
+
+\pause
+Note that $e_n$ maintains the units of the original dataset, so it cannot be used to compare error from time series interpolation and trajectory interpolation.
+\end{frame}
+
+
+\begin{frame}{Comparative Analysis}
+\begin{enumerate}
+  \item[5.] Compare errors by calculating representative inaccuracies
+\end{enumerate}
+
+In order to compare $e_n$ values between time series and trajectories, we introduce $e_s$, the standard error where
+$$
+e_s = \frac{e_n}{d_s}.
+$$
+Here, $d_s$ is the standard distance and is calculated from the original trajectory or time series.
+$$
+d_s = \sum \dist (p_i, p_{i+1})
+$$
+
+\pause
+The standard error is unitless and can be compared across interpolation methods used at different stages of pre-processing.
+\end{frame}
+
+\setbeamercovered{invisible}
+
+\section{Current Results with Conventional Methods}
+\subsection{Nearest Neighbor Interpolation}
+
+\setbeamertemplate{caption}{\raggedright\insertcaption\par}
+
+\begin{frame}{Nearest Neighbor Overview}
+\begin{itemize}
+  \item <1-> Perhaps the most fundamental method of interpolation
+  \item <2->Involves copying the information from known data points for creating interpolated points
+  \item <3->This method can be applied to both spatial trajectory data and time series data
+\end{itemize}
+\vspace{-0.65cm}
+\begin{block}<4->{}
+\begin{figure}
+\includegraphics[width=0.48\textwidth]{nn}
+\caption*{\scalebox{.5}{\url{en.wikipedia.org/wiki/Nearest-neighbor_interpolation}}}
+\end{figure}
+\end{block}
+\end{frame}
+
+\begin{frame}{Formal Definition}
+Suppose the gap of interest for interpolating $s$ points exists between $(x_i, y_i)$ and $(x_{i+1}, y_{i+1}).$
+\newline
+
+The desired set of interpolated points is denoted as $I = \{(a_1, b_1), (a_2, b_2), ..., (a_s, b_s)\}$.
+\newline
+
+Then, nearest neighbor interpolation involves computing $I$ according to
+\begin{block}{}
+\vspace{-0.5cm}
+\begin{align*}
+    b_n &= y_i, ~\forall ~n \in \left[ 1, \lfloor \nicefrac{s}{2} \rceil \right]\subset \mathbb{Z}\\
+    b_n &= y_{i+1}, ~\forall ~n \in (\lfloor \nicefrac{s}{2} \rceil, s] \subset \mathbb{Z}\\
+    a_n &= a_{n-1} + \frac{x_{i+1} - x_i}{s+1}, \forall ~n \in [2, s]\subset \mathbb{Z}
+\end{align*}
+such that $a_1 = x_i + \nicefrac{(x_{i+1} - x_i)}{(s+1)}$.
+\end{block}
+With the time series data, $y$ would denote the Hilbert value while $x$ would denote the corresponding index.
+\end{frame}
+
+\setbeamercovered{transparent}
+
+
+\begin{frame}{Results}
+\begin{columns}
+\column{0.5\textwidth}
+\begin{center}
+Trajectory
+\end{center}
+\begin{itemize}
+  \item<1> The sum of errors (i.e. $\sum e_n$): $98338.29804$ km
+  \item<1> Sum of gap lengths: $314.6696176$ km
+  \item<1> The sum of errors squared: $1617790.129$ km
+  \item<1,3> $\nicefrac{\sum e_s}{20} = 176.2701154$ (Average $e_s$)
+\end{itemize}
+
+\column{0.5\textwidth}
+\begin{center}
+Time Series
+\end{center}
+\begin{itemize}
+  \item<2> The sum of errors (i.e. $\sum e_n$): $577743$ Hilberts
+  \item<2> Sum of gap lengths: $21519.8334$ Hilberts
+  \item<2> The sum of errors squared: $36426269$ Hilberts
+  \item<2,3> $\nicefrac{\sum e_s}{20} = 18.04700582$ (Average $e_s$)
+\end{itemize}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Initial Observations}
+\begin{itemize}
+  \item Interpolating time series reduced error considerably
+  \item Error tends to increase with gap length
+  \item Smaller gap length showed little difference in error (preprocessing stage less important)
+\end{itemize}
+\end{frame}
+
+\subsection{Linear Interpolation}
+
+\setbeamercovered{invisible}
+
+\begin{frame}{Linear Interpolation Overview}
+\begin{itemize}
+  \item<1-> Most common method of interpolation
+  \item<2-> Constructs a line connecting known points
+  \item<3-> This method can be applied to both spatial trajectory data and time series data
+  \item<4-> Easy to implement and currently used as default
+\end{itemize}
+\vspace{-0.65cm}
+\begin{block}<5->{}
+\begin{figure}
+\includegraphics[width=0.48\textwidth]{linear}
+\caption*{\scalebox{.5}{\url{en.wikipedia.org/wiki/Linear_interpolation}}}
+\end{figure}
+\end{block}
+\end{frame}
+
+
+\begin{frame}{Formal Definition}
+Given two known points $(x_i, y_i)$ and $(x_{i+1}, y_{i+1})$ between which exists the gap to be interpolated, the interpolant is
+
+\begin{block}{}
+\begin{align*}
+    b_n &= \left( \frac{y_{i+1}-y_i}{x_{i+1}-x_i} \right) (a_n-x_i)+y_i, ~\forall ~n \in \left[ 1, s \right]\subset \mathbb{Z}\\
+    a_n &= a_{n-1} + \frac{x_{i+1} - x_i}{s+1}, \forall ~n \in [2, s]\subset \mathbb{Z}
+\end{align*}
+where $a_1 = x_i + \nicefrac{(x_{i+1} - x_i)}{(s+1)}$. 
+\end{block}
+
+Remember that the desired set of interpolated points is  $I = \{(a_1, b_1), (a_2, b_2), ..., (a_s, b_s)\}$. Note that $s$ is determined from $g_n$.
+\end{frame}
+
+\setbeamercovered{transparent}
+
+\begin{frame}{Results}
+\begin{columns}
+\column{0.5\textwidth}
+\begin{center}
+Trajectory
+\end{center}
+\begin{itemize}
+  \item<1> The sum of errors (i.e. $\sum e_n$): $42321.76999$ km
+  \item<1> Sum of gap lengths: $314.6696176$ km
+  \item<1> The sum of errors squared: $190500.3207$ km
+  \item<1,3> $\nicefrac{\sum e_s}{20} = 110.2836019$ (Average $e_s$)
+\end{itemize}
+
+\column{0.5\textwidth}
+\begin{center}
+Time Series
+\end{center}
+\begin{itemize}
+  \item<2> The sum of errors (i.e. $\sum e_n$): $605145.58394155$ Hilberts
+  \item<2> Sum of gap lengths: $21519.8334$ Hilberts
+  \item<2> The sum of errors squared: $31128429.9897611$ Hilberts
+  \item<2,3> $\nicefrac{\sum e_s}{20} = 18.84167077$ (Average $e_s$)
+\end{itemize}
+\end{columns}
+\end{frame}
+
+
+
+\begin{frame}{Initial Observations}
+\begin{itemize}
+  \item Interpolating time series reduced error considerably
+  \item Error tends to increase with gap length
+  \item Smaller gap length showed little difference in error (preprocessing stage less important)
+\end{itemize}
+\end{frame}
+
+
+
+\subsection{Combining Results}
+
+\begin{frame}[fragile]{Combined Results: Trajectory Performance}
+\begin{center}
+<<fig=TRUE,echo=FALSE,cache=TRUE>>=
+linErrorTraj2 <- read.delim("C:/test/trajectory/Error_Analysis/linErrorTraj2.txt")
+LinErrorTS2 <- read.delim("C:/test/trajectory/Error_Analysis/LinErrorTS2.txt")
+
+NNErrorTraj2 <- read.delim("C:/test/trajectory/Error_Analysis/NNErrorTraj2.txt")
+NNErrorTS2 <- read.delim("C:/test/trajectory/Error_Analysis/NNErrorTS2.txt")
+
+df <- data.frame(linErrorTraj2$Gap.length, linErrorTraj2$Total.Error, NNErrorTraj2$Total.Error)
+library(ggplot2)
+p1 <- ggplot(df, aes(linErrorTraj2$Gap.length, y=value)) + geom_point(aes(y=linErrorTraj2$Total.Error, col="Linear"), size=2) + geom_point(aes(y=NNErrorTraj2$Total.Error,col="N. Neighbor"), size=2) + labs(x="Gap Length", y="Total Error (km)") + geom_line(aes(x = linErrorTraj2$Gap.length, y = linErrorTraj2$Total.Error), color="#F8766D", data=linErrorTraj2, size=0.5) + geom_line(aes(x = NNErrorTraj2$Gap.length, y = NNErrorTraj2$Total.Error), color="#00BFC4", data=NNErrorTraj2, size=0.5) + ggtitle("Comparing Errors") + theme(legend.position="none")
+
+df2 <- data.frame(linErrorTraj2$Gap.length, linErrorTraj2$Error.Squared, NNErrorTraj2$Error.Squared)
+p2 <- ggplot(df2, aes(linErrorTraj2$Gap.length, y=value, color=Method)) + geom_point(aes(y=linErrorTraj2$Error.Squared, col="Linear"), size=2) + geom_point(aes(y=NNErrorTraj2$Error.Squared,col="N. Neighbor"), size=2) + labs(x="Gap Length", y="Total Error Squared (km sq)") + geom_line(aes(x = linErrorTraj2$Gap.length, y = linErrorTraj2$Error.Squared), color="#F8766D", data=linErrorTraj2, size=0.5) + geom_line(aes(x = NNErrorTraj2$Gap.length, y = NNErrorTraj2$Error.Squared), color="#00BFC4", data=NNErrorTraj2, size=0.5) + ggtitle("Comparing Errors Squared") + theme(legend.justification=c(0,1), legend.position=c(0,1))
+
+library(grid)
+library(gridExtra)
+grid.arrange(p1,p2,ncol=2)
+@
+\end{center}
+\end{frame}
+
+
+\begin{frame}[fragile]{Combined Results: Time Series Performance}
+\begin{center}
+<<fig=TRUE,echo=FALSE,cache=TRUE, fig.width=6>>=
+LinErrorTS2 <- read.delim("C:/test/trajectory/Error_Analysis/LinErrorTS2.txt")
+
+NNErrorTS2 <- read.delim("C:/test/trajectory/Error_Analysis/NNErrorTS2.txt")
+
+df <- data.frame(LinErrorTS2$Gap.length, LinErrorTS2$Total.Error, NNErrorTS2$Total.Error)
+library(ggplot2)
+
+p1 <- ggplot(df, aes(LinErrorTS2$Gap.length, y=value)) + geom_point(aes(y=LinErrorTS2$Total.Error, col="Linear"), size=2) + geom_point(aes(y=NNErrorTS2$Total.Error,col="N. Neighbor"), size=2) + labs(x="Gap Length", y="Total Error (km)") + geom_line(aes(x = LinErrorTS2$Gap.length, y = LinErrorTS2$Total.Error), color="#F8766D", data=LinErrorTS2, size=0.5) + geom_line(aes(x = NNErrorTS2$Gap.length, y = NNErrorTS2$Total.Error), color="#00BFC4", data=NNErrorTS2, size=0.5) + ggtitle("Comparing Errors") + theme(legend.position="none")
+
+df2 <- data.frame(LinErrorTS2$Gap.length, LinErrorTS2$Error.Squared, NNErrorTS2$Error.Squared)
+
+p2 <- ggplot(df2, aes(LinErrorTS2$Gap.length, y=value, color=Method)) + geom_point(aes(y=LinErrorTS2$Error.Squared, col="Linear"), size=2) + geom_point(aes(y=NNErrorTS2$Error.Squared,col="N. Neighbor"), size=2) + labs(x="Gap Length", y="Total Error Squared (km sq)") + geom_line(aes(x = LinErrorTS2$Gap.length, y = LinErrorTS2$Error.Squared), color="#F8766D", data=LinErrorTS2, size=0.5) + geom_line(aes(x = NNErrorTS2$Gap.length, y = NNErrorTS2$Error.Squared), color="#00BFC4", data=NNErrorTS2, size=0.5) + ggtitle("Comparing Errors Squared") + theme(legend.justification=c(0,1), legend.position=c(0,1))
+
+library(grid)
+library(gridExtra)
+grid.arrange(p1,p2,ncol=2)
+@
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]{Combined Results: Inaccuracy}
+\begin{center}
+<<fig=TRUE,echo=FALSE,cache=TRUE>>=
+linErrorTraj2 <- read.delim("C:/test/trajectory/Error_Analysis/linErrorTraj2.txt")
+LinErrorTS2 <- read.delim("C:/test/trajectory/Error_Analysis/LinErrorTS2.txt")
+
+NNErrorTraj2 <- read.delim("C:/test/trajectory/Error_Analysis/NNErrorTraj2.txt")
+NNErrorTS2 <- read.delim("C:/test/trajectory/Error_Analysis/NNErrorTS2.txt")
+
+df <- data.frame(linErrorTraj2$Gap.length, linErrorTraj2$Simple.Inaccuracy, LinErrorTS2$Simple.Inaccuracy, NNErrorTraj2$Simple.Inaccuracy, NNErrorTS2$Simple.Inaccuracy)
+
+ggplot(df, aes(linErrorTraj2$Gap.length, y=value, color=Method)) + geom_point(aes(y=LinErrorTS2$Simple.Inaccuracy, col="Linear (TS)"), size=2) + geom_point(aes(y=NNErrorTS2$Simple.Inaccuracy,col="N. Neighbor (TS)"), size=2) + labs(x="Gap Length", y="Inaccuracy") + geom_line(aes(x = LinErrorTS2$Gap.length, y = LinErrorTS2$Simple.Inaccuracy), color="#00BA38", data=LinErrorTS2, size=0.5) + geom_line(aes(x = NNErrorTS2$Gap.length, y = NNErrorTS2$Simple.Inaccuracy), color="#F564E3", data=NNErrorTS2, size=0.5) + ggtitle("Comparing Inaccuracy") + theme(legend.justification=c(0,1), legend.position=c(0,1)) + geom_point(aes(y=linErrorTraj2$Simple.Inaccuracy, col="Linear (Trajectory)"), size=2) + geom_point(aes(y=NNErrorTraj2$Simple.Inaccuracy,col="N. Neighbor (Trajectory)"), size=2) + geom_line(aes(x = linErrorTraj2$Gap.length, y = linErrorTraj2$Simple.Inaccuracy), color="#F8766D", data=linErrorTraj2, size=0.5) + geom_line(aes(x = NNErrorTraj2$Gap.length, y = NNErrorTraj2$Simple.Inaccuracy), color="#00BFC4", data=NNErrorTraj2, size=0.5)
+@
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]{Combined Results: Inaccuracy}
+\begin{center}
+<<fig=TRUE,echo=FALSE,cache=TRUE>>=
+linErrorTraj2 <- read.delim("C:/test/trajectory/Error_Analysis/linErrorTraj2.txt")
+LinErrorTS2 <- read.delim("C:/test/trajectory/Error_Analysis/LinErrorTS2.txt")
+
+NNErrorTraj2 <- read.delim("C:/test/trajectory/Error_Analysis/NNErrorTraj2.txt")
+NNErrorTS2 <- read.delim("C:/test/trajectory/Error_Analysis/NNErrorTS2.txt")
+
+df <- data.frame(linErrorTraj2$Gap.length, linErrorTraj2$Simple.Inaccuracy, LinErrorTS2$Simple.Inaccuracy, NNErrorTraj2$Simple.Inaccuracy, NNErrorTS2$Simple.Inaccuracy)
+
+ggplot(df, aes(linErrorTraj2$Gap.length, y=value, color=Method)) + geom_point(aes(y=LinErrorTS2$Simple.Inaccuracy, col="Linear (TS)"), size=2) + geom_point(aes(y=NNErrorTS2$Simple.Inaccuracy,col="N. Neighbor (TS)"), size=0.5) + labs(x="Gap Length", y="Inaccuracy") + geom_line(aes(x = LinErrorTS2$Gap.length, y = LinErrorTS2$Simple.Inaccuracy), color="#00BA38", data=LinErrorTS2, size=2) + geom_line(aes(x = NNErrorTS2$Gap.length, y = NNErrorTS2$Simple.Inaccuracy), color="#F564E3", data=NNErrorTS2, size=0.5) + ggtitle("Comparing Inaccuracy") + theme(legend.justification=c(0,1), legend.position=c(0,1)) + geom_point(aes(y=linErrorTraj2$Simple.Inaccuracy, col="Linear (Trajectory)"), size=0.5) + geom_point(aes(y=NNErrorTraj2$Simple.Inaccuracy,col="N. Neighbor (Trajectory)"), size=0.5) + geom_line(aes(x = linErrorTraj2$Gap.length, y = linErrorTraj2$Simple.Inaccuracy), color="#F8766D", data=linErrorTraj2, size=0.5) + geom_line(aes(x = NNErrorTraj2$Gap.length, y = NNErrorTraj2$Simple.Inaccuracy), color="#00BFC4", data=NNErrorTraj2, size=0.5)
+@
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]{Combined Results: Inaccuracy}
+\begin{center}
+<<fig=TRUE,echo=FALSE,cache=TRUE>>=
+linErrorTraj2 <- read.delim("C:/test/trajectory/Error_Analysis/linErrorTraj2.txt")
+LinErrorTS2 <- read.delim("C:/test/trajectory/Error_Analysis/LinErrorTS2.txt")
+
+NNErrorTraj2 <- read.delim("C:/test/trajectory/Error_Analysis/NNErrorTraj2.txt")
+NNErrorTS2 <- read.delim("C:/test/trajectory/Error_Analysis/NNErrorTS2.txt")
+
+df <- data.frame(linErrorTraj2$Gap.length, linErrorTraj2$Simple.Inaccuracy, LinErrorTS2$Simple.Inaccuracy, NNErrorTraj2$Simple.Inaccuracy, NNErrorTS2$Simple.Inaccuracy)
+
+ggplot(df, aes(linErrorTraj2$Gap.length, y=value, color=Method)) + geom_point(aes(y=LinErrorTS2$Simple.Inaccuracy, col="Linear (TS)"), size=0.5) + geom_point(aes(y=NNErrorTS2$Simple.Inaccuracy,col="N. Neighbor (TS)"), size=2) + labs(x="Gap Length", y="Inaccuracy") + geom_line(aes(x = LinErrorTS2$Gap.length, y = LinErrorTS2$Simple.Inaccuracy), color="#00BA38", data=LinErrorTS2, size=0.5) + geom_line(aes(x = NNErrorTS2$Gap.length, y = NNErrorTS2$Simple.Inaccuracy), color="#F564E3", data=NNErrorTS2, size=2) + ggtitle("Comparing Inaccuracy") + theme(legend.justification=c(0,1), legend.position=c(0,1)) + geom_point(aes(y=linErrorTraj2$Simple.Inaccuracy, col="Linear (Trajectory)"), size=0.5) + geom_point(aes(y=NNErrorTraj2$Simple.Inaccuracy,col="N. Neighbor (Trajectory)"), size=0.5) + geom_line(aes(x = linErrorTraj2$Gap.length, y = linErrorTraj2$Simple.Inaccuracy), color="#F8766D", data=linErrorTraj2, size=0.5) + geom_line(aes(x = NNErrorTraj2$Gap.length, y = NNErrorTraj2$Simple.Inaccuracy), color="#00BFC4", data=NNErrorTraj2, size=0.5)
+@
+\end{center}
+\end{frame}
+
+
+\begin{frame}[fragile]{Statistical Difference}
+A two sample t-test returns the statistical significance of the results.
+
+\begin{table}[h]
+\centering
+\caption*{P values of two sample t-tests}
+\begin{tabular}{@{}|c|l|c|c|@{}|}
+\toprule
+                            &             & \multicolumn{2}{c|}{Time Series}                              \\ \midrule
+                            &             & Linear                     & N. Neighbor \\
+\multirow{2}{*}{Trajectory} & Linear      & 0.001469728                & 0.001294356                     \\
+                            & N. Neighbor & 4.9942E-05                 & 4.6472E-05                      \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[]
+\centering
+\caption*{Additional Values (Linear vs Nearest Neighbor)}
+\begin{tabular}{|@{}ll@{}|}
+\toprule
+~            & P-value~     \\ \midrule
+~Time Series & 0.944246478~ \\
+~Trajectory  & 0.09547194~  \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+
+\begin{frame}{Observations}
+\begin{itemize}
+  \item<1-> Nearest neighbor and linear interpolation with time series return statistically identical results
+  \item<2-> Time series interpolation categorically returned better results
+  \item<3-> Nearest neighbor and linear interpolation with trajectory data also returned statistically identical results (however p-value is smaller)
+  \begin{itemize}
+    \item This is likely a result of the small sample size
+  \end{itemize}
+  \item<4-> Linear interpolation with trajectory data performed better than the nearest neighbor interpolation
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Spline Interpolation}
+\onslide<1>{Calculation of a series of polynomial interpolants which together form a piecewise polynomial function}
+
+\onslide<2>{The ``spline'' is the resulting piecewise polynomial function that passes through each known point.}
+
+\onslide<3,4>{$Q = \{\left(x_1,y_1\right), \left(x_2,y_2\right), ..., \left(x_n,y_n\right)\}$.}
+
+\onslide<4,5>{For each $(x_i,y_i), (x_{i+1}, y_{i+1}) \in Q$ and for $D = [x_i, x_{i+1}],~R = [y_i, y_{i+1}]$}, \onslide<5>{the problem of spline interpolation is to find a polynomial of a predetermined degree $P_i: D \to R$.}
+
+\onslide<6->{
+The spline, $S(x)$ is defined as
+$$
+S(x) =
+  \begin{cases}
+    P_1(x) & : x_1\leq x \leq x_2\\
+    P_2(x) & : x_2 < x \leq x_3\\
+    ~\vdots & ~~ \vdots\\
+    P_{n-1}(x) & : x_{n-1} < x \leq x_n
+  \end{cases}
+$$
+}
+\end{frame}
+
+\begin{frame}{Spline Interpolation}
+Linear interpolation is an instance of spline interpolation where $\deg(P_i) = 1$.
+\newline
+
+Cubic spline interpolation is also widely used.
+\newline
+
+\begin{definition}
+$$
+\deg(P_i) = 3
+$$
+$$
+P'_i(x_i) = P'_i(x_{i+1})
+$$
+$$
+P''_i(x_i) = P''_i(x_{i+1})
+$$
+\end{definition}
+
+Future work with this.
+\end{frame}
+
+\begin{frame}{Curve fitting and Polynomial Interpolation}
+\begin{definition}
+Given a set of $n$ points, find a polynomial of degree $n-1$ that passes through each point.
+\end{definition}
+\pause
+Important properties:
+\begin{itemize}
+  \item The polynomial can then be used to interpolate any desired value
+  \item Global interpolant
+  \item Yields smoother interpolants than those generated through nearest neighbor, linear, or cubic spline means
+  \item Runge's phenomenon can cause issues
+\end{itemize}
+\end{frame}
+
+\section{Velocity Based Model}
+
+\subsection{Introduction}
+\begin{frame}{Introduction to Velocity-Based Model}
+Limitations of nearest neighbor and linear interpolation methods
+\begin{itemize}
+  \item Highly innaccurate
+  \item Information is ``wasted''
+  \item Nearest neighbor relies on exact interpolation
+  \item Interpolated paths are highly inflexible
+  \item Both are local interpolation methods
+\end{itemize}
+
+Minimizing these limitations requires a model that extracts information from known trajectory points.
+\end{frame}
+
+
+\begin{frame}[fragile]{Motivation}
+The trajectory can be viewed as a set of vectors
+\begin{block}{}
+\begin{center}
+<<fig=TRUE,echo=FALSE, cache=TRUE>>=
+plot(c(116.18,116.28,116.42,116.48),c(39.26,39.25,39.1,39.3), pch=16, xlab = "Longitude", ylab = "Latitude", main = "A Simple Trajectory")
+grid(col = "black")
+arrows(116.18,39.26,116.28,39.25, lwd = 2)
+arrows(116.28,39.25,116.42,39.1, lwd = 2)
+arrows(116.42,39.1,116.48,39.3, lwd = 2)
+@
+\end{center}
+\end{block}
+
+\end{frame}
+
+
+\setbeamercovered{invisible}
+
+
+\begin{frame}{Motivation}
+Properties of vectors
+\begin{itemize}
+  \item Direction
+  \item Magnitude
+\end{itemize}
+\vspace{0.5cm}
+\pause
+Properties of spatial vectors
+\begin{itemize}
+  \item Compass direction
+  \item Velocity
+\end{itemize}
+\vspace{0.5cm}
+We can exploit these properties to yield more accurate interpolants.
+\end{frame}
+
+
+\subsection{Function}
+\setbeamercovered{transparent}
+
+\begin{frame}{Function Outline}
+Our algorithm consists of three main steps
+\begin{enumerate}
+  \item<1-> Parse known values and create a dataset
+  \item<2-> Interpolate
+  \begin{enumerate}
+    \item<2-> Find a matching data point
+    \item<2-> Extract information based on this match
+    \item<2-> Apply information to calculation of interpolated point
+  \end{enumerate}
+  \item<3-> Update dataset
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Parsing}
+Each point has five defining values:
+\begin{enumerate}
+  \item Time of day
+  \item Latitude
+  \item Longitude
+  \item \textbf{Change in direction}
+  \item \textbf{Velocity}
+\end{enumerate}
+
+The latter two quantities are calculated for each point (with the exception of the last point).
+\end{frame}
+
+\begin{frame}{Interpolation and Update}
+
+\begin{columns}
+\column{0.5\textwidth}
+\onslide<1>{Interpolation begins at the leftmost end of the leftmost gap.}
+\newline
+
+\onslide<2>{Velocity of the closest known point (nearest neighbor) is recorded.}
+\newline
+
+\onslide<3,4,5>{Selection routine returns a set of potential matches.}
+\begin{itemize}
+  \item<4> Searches dataset for points whose velocities are within a user-defined threshold of given velocity
+  \item<5> If there are not any values, the routine returns the point with the closest velocity
+\end{itemize}
+
+\column{0.5\textwidth}
+\onslide<6>{Time of day serves as a second metric (the point with the closest time value is used).}
+\newline
+
+\onslide<7>{The direction and acceleration of this point is recorded.}
+\newline
+
+\onslide<8>{These values are applied to the velocity and position of the nearest neighbor to yield an interpolated point (time is incremented by five seconds).}
+\newline
+
+\onslide<9>{The values of the new point are incorporated into the dataset of known values.}
+\end{columns}
+\end{frame}
+
+\section{Performance}
+\begin{frame}{Initial Testing}
+\begin{center}
+<<fig=TRUE,cache=TRUE,echo=FALSE>>=
+actual = read.table("C:/test/velocity_interpolation/actual.txt", header = FALSE, quote = "\"", skip = 0, sep="\t")
+x1 <- actual$V1
+y1 <- actual$V2
+
+velocity = read.table("C:/test/velocity_interpolation/model.txt", header = FALSE, quote = "\"", skip = 0, sep="\t")
+x2 <- velocity$V1
+y2 <- velocity$V2
+
+
+library(ggplot2)
+
+ggplot(aes(x = x1, y = y1, color="black"), data=actual) + geom_point(size=1, color="#070688") + geom_point(size=1, aes(x = x2, y = y2), color="#A52A2A", data=velocity) + labs(x = "Longitude", y = "Latitude") + ggtitle("Velocity Model")
+@
+\end{center}
+\end{frame}
+
+\section{Future Work}
+\begin{frame}{Future Work}
+Considerations for furutre research
+\begin{itemize}
+  \item<1-> Automatic parameter estimation and model refinement
+  \item<2-> Cubic spline interpolation
+  \item<3-> Polynomial curve fitting
+  \item<4-> Probabilistic modeling
+  \item<5-> Adaptive interpolation method (combining models)
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\end{frame}
+
+
+\end{document}
