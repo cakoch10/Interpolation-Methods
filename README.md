@@ -12,10 +12,10 @@ There are three main components to this repository.
 The Java project is divided into six packages. Each package includes `.java` files that are related to each other. The trajectory folder includes all of the files used in the interpolation analysis. They also include the results for the presentation given regarding this research.
 
 The general procedure for testing an interpolation method involves
-1. Creating gaps in actual files to which an interpolation porcedure can be applied
-2. Creating an implementation of the interpolation
-3. Parsing the files with gaps and applying the interpolation procedure to fill in the gap. Then writing the interpolated data to a new set of files
-4. Finding the accurracy of the method by comparing the interpolated data to the actual data. 
+> 1. Creating gaps in actual files to which an interpolation porcedure can be applied
+> 2. Creating an implementation of the interpolation
+> 3. Parsing the files with gaps and applying the interpolation procedure to fill in the gap. Then writing the interpolated data to a new set of files
+> 4. Finding the accurracy of the method by comparing the interpolated data to the actual data. 
 
 Typically each step is a separate java program.
 
