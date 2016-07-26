@@ -32,8 +32,8 @@ This package includes files related to cubic spline interpolation. These files u
   * **Summary**: Performs the same task as `CubicErrorTraj.java` except it uses `tsError.java` to calculate the error between two time series. Reads actual time series files from the folder `Original_TS` and reads the interpolated time series from the folder `Cubic_TS`. The final results for each file are written to the file `CubicTS.plt` in the `Error_Analysis` folder. 
   * **Imports**: `tsError.java` and `writeToFile`; both from the `main` package.
 * `CubicSplineMainTraj.java`
-  * **Summary**:
-  * **Imports**:
+  * **Summary**: Gets the files in the folder `Trajectory_with_gaps` and applies the spline interpolation method to filling in the gaps. Creates a new set of files and writes the files to the folder `Cubic_Traj`.
+  * **Imports**: `ExtractLatLon.java` and `writeToFile`; both from `main`.
 * `CubicTSMain.java`
   * **Summary**:
   * **Imports**:
