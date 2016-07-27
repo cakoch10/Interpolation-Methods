@@ -6,7 +6,7 @@ import main.tsError;
 import main.writeToFile;
 
 public class CubicErrorTS {
-public static void main(String[] args){
+	public static void main(String[] args){
 		//IGNORE THE NAMES OF FILES, THIS WAS COPIED AND MODIFIED
 		File actualDir = new File("C:/test/trajectory/Original_TS");
 		File[] actualList = actualDir.listFiles();
@@ -55,7 +55,7 @@ public static void main(String[] args){
 			+ "," + Double.toString(linError[i][1])
 			+ "," + Double.toString(linError[i][2]);
 		}
-	
+
 		String newNamelin = "C:/test/trajectory/Error_Analysis/CubicTS.plt";
 		writeToFile copyLinresults = new writeToFile(linResults, newNamelin);
 		copyLinresults.write();

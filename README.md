@@ -93,27 +93,34 @@ This package includes general programs that are used by other files to execute s
     * `double returnErrCum()` - returns the sum of error values.
     * `double realDist()` - returns the total distance covered in the original trajectory.
     * `double dist(double, double, double, double)` - given two coordinates (in the form x1, y1, x2, y2) returns the distance between the two using the Haversine formula.
-* `error.java`
+* `ExtractLatLon.java`
+  * **Summary**: Used to get the latitude and longitude values from a file.
+  * **Methods**:
+    * **Constructor** `ExtractLatLon(string)` - accepts a string representing the filepath of the file with the latitude and longitude values (the file must be in the PLT format exemplified by the GeoLife dataset)
+    * `string getLats()` - returns the latitude values as a string of double values separated by commas (note that the final comma is removed so the last character of the string is numeric)
+    * `string getLons()` - returns the longitude values in the same format as the latitude values
+* `getNum.java`
+  * **Summary**: Extracts information from a line of GeoLife data
+  * **Methods**:
+    * **Constructor** `getNum(string)` - constructed with a string representing one point from the GeoLife data (seven values including latitude and longitude, separated by commas)
+    * `extract()` - mutator method that must be called before other methods. It extracts the latitude, longitude, and time values from the given string.
+    * `double getLat()` - returns the latitude
+    * `double getLon()` - returns the longitude
+    * `double getTime()` - returns the time as a double representing the number of days since 12/30/1899
+    * `double getTimeD()` - returns the time of day in hours (on a 24-hour clock)
+* `OrderPoints.java`
   * **Summary**:
   * **Methods**:
   * **Imports**:
-* `error.java`
+* `time.java`
   * **Summary**:
   * **Methods**:
   * **Imports**:
-* `error.java`
+* `tsError.java`
   * **Summary**:
   * **Methods**:
   * **Imports**:
-* `error.java`
-  * **Summary**:
-  * **Methods**:
-  * **Imports**:
-* `error.java`
-  * **Summary**:
-  * **Methods**:
-  * **Imports**:
-* `error.java`
+* `writeToFile.java`
   * **Summary**:
   * **Methods**:
   * **Imports**:
@@ -123,46 +130,46 @@ This package includes general programs that are used by other files to execute s
   * **Summary**:
 * `CreateGaps.java`
   * **Summary**:
-* `correction.java`
+* `gap.java`
   * **Summary**:
-* `correction.java`
+* `gapRemove.java`
   * **Summary**:
-* `correction.java`
+* `getFiles.java`
   * **Summary**:
-* `correction.java`
+* `Inaccuracy.java`
   * **Summary**:
-* `correction.java`
+* `passFiles.java`
   * **Summary**:
-* `correction.java`
+* `test.java`
   * **Summary**:
-* `correction.java`
+* `testV.java`
   * **Summary**:
 
 ### `polynomial`
-* `PolynomMainTraj`
+* `PolynomInterpolation.java`
   * **Summary**:
   * **Imports**:
-* `PolynomMainTraj`
+* `PolynomMainTraj.java`
   * **Summary**:
   * **Imports**:
-* `PolynomMainTraj`
+* `PolynomTS_Main.java`
   * **Summary**:
   * **Imports**:
-* `PolynomMainTraj`
+* `PolyTrajErrorMain.java`
   * **Summary**:
   * **Imports**:
 
 ### `velocity_model`
-* `PolynomMainTraj`
+* `optimize.java`
   * **Summary**:
   * **Imports**:
-* `PolynomMainTraj`
+* `test_velocityModel.java`
   * **Summary**:
   * **Imports**:
-* `PolynomMainTraj`
+* `v.java`
   * **Summary**:
   * **Imports**:
-* `PolynomMainTraj`
+* `velocityInterpolation.java`
   * **Summary**:
   * **Imports**:
   
