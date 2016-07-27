@@ -147,7 +147,7 @@ public class PolynomInterpolation {
 	}
 	
 	public double[] interpolateTS(){
-double[] vals = new double[gapLen];
+		double[] vals = new double[gapLen];
 		
 		if(!checkTS){
 			System.out.println("Error: setTS never called");

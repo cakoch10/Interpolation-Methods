@@ -1,5 +1,4 @@
 package main;
-import java.io.*;
 import java.util.*;
 
 public class getNum {
@@ -47,22 +46,12 @@ public class getNum {
 		return time;
 	}
 	
-	public double getTimeD(int d){//returns the time of day in hours
-		if(d==0){
-			time nums = new time(time);
-			double ntime = ((double)nums.getHour());
-			ntime += (nums.getMin()/60.0);
-			ntime += nums.getSec()/3600.0;
-			return ntime;
-		}
-		else{
-			time nums = new time(time);
-			double ntime = ((double)nums.getHour());
-			double y = (double)nums.getMin()/60.0;
-			ntime += (nums.getMin()/60.0);
-			ntime += nums.getSec()/3600.0;
-			return ntime;
-		}
+	public double getTimeD(){//returns the time of day in hours
+		time nums = new time(time);
+		double ntime = ((double)nums.getHour());
+		ntime += (nums.getMin()/60.0);
+		ntime += nums.getSec()/3600.0;
+		return ntime;
 	}
 
 }

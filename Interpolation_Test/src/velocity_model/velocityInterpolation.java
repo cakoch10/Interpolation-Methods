@@ -1,8 +1,6 @@
 package velocity_model;
 import java.util.*;
-
 import main.getNum;
-
 import java.io.*;
 
 public class velocityInterpolation {
@@ -44,13 +42,13 @@ public class velocityInterpolation {
 	        }
 	        bR.close();
 	        //extract values from lines
-	        //some of these calls are redundent because the class v and the class getNum should be combined
+	        //some of these calls are redundant because the class v and the class getNum should be combined
 	        for(int i = 0; i<len-1; i++){
 	        	getNum first = new getNum(lines[i]);
 	        	first.extract();
 	        	latitudes[i] = first.getLat();
 	        	longitudes[i] = first.getLon();
-	        	times[i] = first.getTimeD(0);//store as the time of day in hours
+	        	times[i] = first.getTimeD();//store as the time of day in hours
 	        		
 	        	if(lines[i+1]==null){
 	        		int out = i+1;
@@ -67,7 +65,7 @@ public class velocityInterpolation {
 	        final_val.extract();
 	        latitudes[len-1] = final_val.getLat();
 	        longitudes[len-1] = final_val.getLon();
-	        times[len-1] = final_val.getTimeD(0);
+	        times[len-1] = final_val.getTimeD();
 	        directions[len-1] = directions[len-2];
 	        velocities[len-1] = velocities[len-2];
 		}
@@ -116,7 +114,7 @@ public class velocityInterpolation {
 		System.out.println("THE SUM IS: " + sum);
 		
 		count = 0;//use this as a second index for keeping track of which gaps have been incorporated into the string
-		int count2 = 0;//uses this as a third index for keeping track of our location a gap being interpolated
+		//int count2 = 0;//uses this as a third index for keeping track of our location a gap being interpolated
 		for(int i=0; i<new_list.length; i++){
 			//we need to check if i is in the range (gaps[count], gaps[count]+num_points[count]]
 			boolean is_outside;
@@ -174,7 +172,7 @@ public class velocityInterpolation {
 					}
 					count++;
 				}
-				count2++;
+				//count2++;
 				/*if(count2 == num_points[count]-1){//if this is true, we have finished interpolating the particular gap at position count
 					count2=0;
 					count++;
@@ -424,6 +422,4 @@ public class velocityInterpolation {
 	public ArrayList<String> getInterpolatedLines(){
 		return interpolated_lines;
 	}
-	
-	
 }

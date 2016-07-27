@@ -50,7 +50,7 @@ public class v {
 		return direction;
 	}
 	
-	public double dir(double lon0, double lat0, double lon1, double lat1){
+	private static double dir(double lon0, double lat0, double lon1, double lat1){
 		lon0 = Math.toRadians(lon0);
 		lat0 = Math.toRadians(lat0);
 		
@@ -64,7 +64,7 @@ public class v {
 		return Math.toDegrees(Math.atan2(part1, part2));		
 	}
 
-	public double dist(double x1, double y1, double x2, double y2){
+	private static double dist(double x1, double y1, double x2, double y2){
 		double distance = 0.0;
 		final double r = 6371.0; //radius of earth in km
 		

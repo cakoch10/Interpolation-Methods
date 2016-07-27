@@ -1,6 +1,5 @@
 package other;
 import java.io.*;
-import java.util.ArrayList;
 
 public class passFiles {
 	public static void main(String[] args){

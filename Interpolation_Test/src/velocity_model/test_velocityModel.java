@@ -1,5 +1,4 @@
 package velocity_model;
-import java.io.*;
 import java.util.*;
 
 import main.writeToFile;
