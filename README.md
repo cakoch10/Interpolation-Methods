@@ -12,7 +12,7 @@ There are three main components to this repository.
 > 2. Data files
 > 3. Presentation material
 
-The Java project is divided into six packages. Each package includes `.java` files that are related to each other. The trajectory folder includes all of the files used in the interpolation analysis. They also include the results for the presentation given regarding this research.
+The Java project is divided into six packages. Each package includes `.java` files that are related to each other. The trajectory folder includes all of the files used in the interpolation analysis. They also include the results for the presentation summarizing this research (located in the `First presentation` folder).
 
 The general procedure for testing an interpolation method involves
 
@@ -30,16 +30,16 @@ This package includes files related to cubic spline interpolation. It uses the [
 
 * `CubicErrorTraj.java`
   * **Summary**: Reads orignal trajectory files and cubic interpolated trajectories (located in the `Cubic_Traj` folder). Each pair of files (the actual trajectory and the corresponding interpolated trajectory) is compared using the `error` class. The kilometers, kilometers squared, and distance for each trajectory is stored in an array. This values are then written to a `.plt` file (specifically the `CubicErrorTraj.plt` file located in the `Error_Analysis` folder. Note that the distance returned is the total distance of the trajectory (rather than the distance of the interpolated gap).
-  * **Imports**: `error` and `writeToFile`; both are from the `main` package.
+  * **Imports**: `error.java` and `writeToFile.java`; both are from the `main` package.
 * `CubicErrorTS.java`
   * **Summary**: Performs the same task as `CubicErrorTraj.java` except it uses `tsError.java` to calculate the error between two time series. Reads actual time series files from the folder `Original_TS` and reads the interpolated time series from the folder `Cubic_TS`. The final results for each file are written to the file `CubicTS.plt` in the `Error_Analysis` folder. 
-  * **Imports**: `tsError.java` and `writeToFile`; both from the `main` package.
+  * **Imports**: `tsError.java` and `writeToFile.java`; both from the `main` package.
 * `CubicSplineMainTraj.java`
   * **Summary**: Gets the files in the folder `Trajectory_with_gaps` and applies the cubic spline interpolation method to filling in the gaps. Creates a new set of files and writes the files to the folder `Cubic_Traj`.
-  * **Imports**: `ExtractLatLon.java` and `writeToFile`; both from `main`.
+  * **Imports**: `ExtractLatLon.java` and `writeToFile.java`; both from `main`.
 * `CubicTSMain.java`
   * **Summary**: Performs the same function as `CubicSplineMainTraj.java` but with time series data. Reads data from `Time_series_wtih_gaps` and writes to `Cubic_TS`.
-  * **Imports**: `writeToFile`
+  * **Imports**: `writeToFile.java`
 * `SplineInterpolation.java`
   * **Summary**: Provides an implementation of the cubic spline interpolator using the methods provided by the Apache Commons Math library. **Constructed** with the gap length of the particular dataset. It can interpolate both time series and trajectory data.
   * **Methods**:
@@ -54,7 +54,7 @@ This package includes files related to cubic spline interpolation. It uses the [
 This package includes the files that implement the linear and nearest neighbor interpolation methods. 
 * `LinearInterpolationMainTraj.java`
   * **Summary**: Retrieves trajectory files with gaps from the folder `Trajectory_with_gaps`. Applies the linear interpolation algoirithm and writes the new files to the folder `LinInt_Traj`.
-  * **Imports**: `writeToFile` from the `main` package.
+  * **Imports**: `writeToFile.java` from the `main` package.
 * `linInterp.java`
   * **Summary**: Given two strings each of which is a line (with the same format as a line from the GeoLife dataset) containing the latitude and longitude values, this program will return either a linearly interpolated dataset or a nearest neighbor interpolated dataset. It's **constructed** with the start string, end string, the length of the gap, and a boolean value denoting whether to include the start and end strings in the list of values returned after interpolation. This program is used specifically for trajectory data.
   * **Methods**:
@@ -66,7 +66,7 @@ This package includes the files that implement the linear and nearest neighbor i
   * **Summary**: Applies linear interpolation to time series data. Reads from `Time_series_with_gaps` and writes to `Lin_TS`.
 * `NearestNeighbor.java`
   * **Summary**: The main program for performing nearest neighbor interpolation on trajectory files. Reads from `Trajectory_with_gaps` folder and writes to `NN_traj` folder.
-  * **Imports**: `writeToFile` from `main`.
+  * **Imports**: `writeToFile.java` from `main`.
 * `NearestNeighborTS.java`
   * **Summary**: The main program for applying nearest neighbor interpolation to time series data. Reads from `Time_series_with_gaps` and writes to `NN_TS`. 
 * `SimpleTS.java`
@@ -80,7 +80,7 @@ This package includes the files that implement the linear and nearest neighbor i
   * **Imports**: `error` and `writeToFile` (both from main)
 * `tsErrorMain.java`
   * **Summary**: Calculates error from linear and nearest neighbor time series. Reads from the folders `Original_TS`, `Lin_TS`, and `NN_TS`. Writes the error values to the `Error_Analysis` folder as `NNerror.plt` and `Linerror.plt`.
-  * **Imports**: `tsError` and `writeToFile` (from main)
+  * **Imports**: `tsError.java` and `writeToFile.java` (from main)
 
 
 ### `main`
