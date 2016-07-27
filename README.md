@@ -109,41 +109,51 @@ This package includes general programs that are used by other files to execute s
     * `double getTime()` - returns the time as a double representing the number of days since 12/30/1899
     * `double getTimeD()` - returns the time of day in hours (on a 24-hour clock)
 * `OrderPoints.java`
-  * **Summary**:
+  * **Summary**: Sorts two arrays of corresponding x and y points in ascending order based on the x values. For example, if x = {1, 3, 2} and y = {9, 8, 7} then the resulting arrays would be x = {1, 2, 3} and y = {9, 7, 8}.
   * **Methods**:
-  * **Imports**:
+    * **Constructor** `OrderPoints(Double[], Double[])` - accepts two arrays of Double values; the first is the x values and the second is the y values.
+    * `Double[] getX()` - returns the list of sorted x values
+    * `Double[] getY()` - returns the list of corresponding y values.
 * `time.java`
-  * **Summary**:
+  * **Summary**: Performs analysis of a double value that represents the number of days since 12/30/1899
   * **Methods**:
-  * **Imports**:
+    * **Constructor** `time(double)` - constructed with a single value representing the number of days since 1899
+    * `print()` - prints the hour, minutes, seconds, and the fractional part of the seconds value (represents time of day in the 24-hour clock format)
+    * `int getMin()` - returns the number of minutes (a value from 0 to 59)
+    * `int getSec()` - returns the seconds (an integer 0 to 59)
+    * `int getHour()` - returns the hour of the day (an integer 0 to 23)
 * `tsError.java`
-  * **Summary**:
+  * **Summary**: Reads two files of time series values and calculates the difference between the two (error)
   * **Methods**:
-  * **Imports**:
+    * **Constructor** `tsError(string, string, boolean, boolean)` - the first sting provides the filepath for the actual time series values while the second string is the filepath for the interpolated time series. The first boolean denotes whether the file's values are separated by commas (when set to true), and the second denotes the same style but for the interpolated time series.
+    * `double getErrorSq()` - returns the error squared
+    * `double getError()` - returns the total error
+    * `int getLen()` - returns the length of the time series or the number of points
 * `writeToFile.java`
-  * **Summary**:
+  * **Summary**: Creates a specified file (or overwrites file if the name already exists) and writes a given list of strings to the file
   * **Methods**:
-  * **Imports**:
-
+    * **Constructor** `writeToFile(string[], string)` - the array of strings includes the contents to be written to the file while the string is the filepath (with the filename and extension)
+    * `write()` - performs the main operation of writing contents to file
 ### `other`
+This package contains a number of miscellaneous programs - some of which are incomplete - that were used mainly for testing or for one time tasks. Since these programs aren't really useful, the descriptions are not very detailed.
 * `correction.java`
-  * **Summary**:
+  * **Summary**: This program was originally created to fix a problem with linearly interpolating the time series data. However, it ended up not being needed.
 * `CreateGaps.java`
-  * **Summary**:
+  * **Summary**: This program is used to create the original list of trajectory files with gaps. It parses the files in the `trajectory` folder removes a predetermined number of lines. It then writes the files to the same folder. This program ran once and afterwards the trajectories with gaps were moved to the folder `Trajectory_with_gaps`.
 * `gap.java`
-  * **Summary**:
+  * **Summary**: This is an incomplete program.
 * `gapRemove.java`
-  * **Summary**:
+  * **Summary**: Originally intended to parse the trajectory files and fill in gaps where necessary (anytime the time gap between adjacent points is greater than 5 seconds). However the program needs to be debugged.
 * `getFiles.java`
-  * **Summary**:
+  * **Summary**: Essentially the same as `gapRemove.java` but includes the main method and extracts files from the folder `test`.
 * `Inaccuracy.java`
-  * **Summary**:
+  * **Summary**: This program ran once. It calculates the length of the gaps of both the trajectories and time series. For example, if a gap in a trajectory were to exist between 10am and 11am, this program would calculate (using data from the actual trajectory) the total distance in kilometers traveled by that individual during that time interval. It outputs the distance values to the file `totalDistance.plt` in the `Error_Analysis` folder. Each line of output consists of (in this order) the trajectory distance, time series distance, and the file size (to match the trajectory or time series with their respective distance values).
 * `passFiles.java`
-  * **Summary**:
+  * **Summary**: Incomplete program that was intended to pass files to `gapRemove.java`.
 * `test.java`
-  * **Summary**:
+  * **Summary**: Program used to test various classes and methods.
 * `testV.java`
-  * **Summary**:
+  * **Summary**: Another program to test various methods and classes.
 
 ### `polynomial`
 * `PolynomInterpolation.java`
