@@ -69,6 +69,50 @@ public class error {
 		
 		executed = true;
 	}
+	
+	public void calculate2(int gapLen){//calculate the error for each line
+		for(int i=10; i<(gapLen+10); i++){
+			getNum point1 = new getNum(real[i]);
+			point1.extract();
+			getNum point2 = new getNum(artificial[i]);
+			point2.extract();
+			
+			//get latitude and longitude values
+			double x = point1.getLon();
+			double y = point1.getLat();
+			
+			double x1 = point2.getLon();
+			double y1 = point2.getLat();
+			
+			//implements the Haversine formula
+			//calculates distance between the two points taking into consideration the spherical curvature of earth's surface
+			final double r = 6371.0; //radius of earth in km
+			
+			x = Math.toRadians(x);
+			y = Math.toRadians(y);
+			
+			x1 = Math.toRadians(x1);
+			y1 = Math.toRadians(y1);
+			
+			double half1 = (y-y1) / 2;
+			double half2 = (x-x1) / 2;
+					
+			double part1 = Math.sin(half1)*Math.sin(half1) + Math.cos(y)*Math.cos(y1)*Math.sin(half2)*Math.sin(half2);
+			double part2 = Math.sqrt(part1);
+			double distance = 2*r*Math.asin(part2);//distance is in km due to units of earth's radius
+			
+			if(Double.isNaN(distance)){
+				System.out.println("x: " + x1);
+				System.out.println("y: " + y1);
+				System.out.println(part1);
+				System.out.println(part2);
+			}
+			
+			err[i] = distance;
+		}
+		
+		executed = true;
+	}
 		
 	public double[] returnErr(){//returns the list of error values
 		if(!executed){

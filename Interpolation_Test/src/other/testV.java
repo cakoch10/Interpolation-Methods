@@ -1,10 +1,5 @@
 package other;
 import java.io.File;
-import java.util.*;
-
-import org.apache.commons.math3.fitting.*;
-
-import main.OrderPoints;
 
 public class testV {
 	public static void main(String[] args){
@@ -55,24 +50,16 @@ public class testV {
        
         */
 		
-		
-		
-		Double[] x = {1.0, 3.2, 2.4};
-		Double[] y = {5.2, 112.3, 1.1};
-		OrderPoints test = new OrderPoints(x,y);
-		System.out.println(Arrays.toString(test.getX()));
-		System.out.println(Arrays.toString(test.getY()));
-		
-		System.out.println("\n Original: ");
-		System.out.println(Arrays.toString(x));
-		System.out.println(Arrays.toString(y));
-		
-		Double x1[] = new Double[2];
-		x1[0] = new Double(2.1);
-		x1[1] = new Double(5.2);
-		System.out.println(x1[0]);
-		
-		
+		File linearTS = new File("C:/test/trajectory2/Cubic_TS");
+			File[] linearTSList = linearTS.listFiles();
+			for(int i=0; i<1000; i=i+100){
+			String name = linearTSList[i].getName();
+			name = name.substring(18, name.length()-11);//20070921120306_TS_100_Cubic_222281.plt
+			String[] name2 = name.split("_");
+			int gapLength = Integer.parseInt(name2[0]);
+			System.out.println(gapLength);
+			System.out.println(linearTSList[i].getName());
+		}
         /*
         
         for(int i=0; i<paths.length; i++){

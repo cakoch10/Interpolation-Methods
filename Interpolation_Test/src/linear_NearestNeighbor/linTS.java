@@ -120,7 +120,6 @@ public class linTS {
     		System.arraycopy(hilbert_double, 10, final_result, 10+num_points, hilbert_double.length-10);
     		
     		
-    		
     		String[] stringVals = new String[final_result.length];
     		for(int k=0; k<final_result.length; k++){
     			stringVals[k] = Double.toString(final_result[k]);

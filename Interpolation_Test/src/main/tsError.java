@@ -11,8 +11,10 @@ public class tsError{
 	private double error = 0.0;
 	private double errorSq = 0.0; //error squared
 	
-	public tsError(String filenameActual, String filenameInterpolated, boolean actualStyle, boolean interpolatedStyle){
+	public tsError(String filenameActual, String filenameInterpolated, boolean actualStyle, boolean interpolatedStyle, int gap){
 		//the boolean values indicate whether the file has commas (when set to true) or lacks commas (when set to false)
+		//gap indicates how many points were interpolated
+		int gapLength = gap;
 		
 		String a = null;
 		String in = null;
@@ -35,7 +37,7 @@ public class tsError{
 			else{
 				while((line = bR.readLine()) != null){
 					if(count==0)
-						a = line;
+						a = line + ",";
 					else
 						a += line + ",";
 					count++;
@@ -86,26 +88,27 @@ public class tsError{
 		String[] actual_vals = actual.split(",");
 		String[] interpolated_vals = interpolated.split(",");
 		len = actual_vals.length;
-		if(len != interpolated_vals.length){
+		if(actual_vals.length != interpolated_vals.length){
 			System.out.println("Error: unequal lengths");
-			System.out.println("Actual file: " + filenameActual + " length: " + len);
+			System.out.println("Actual file: " + filenameActual + " length: " + actual_vals.length);
 			System.out.println("Interpolated: " + filenameInterpolated + " length: " + interpolated_vals.length);
 		}
 		double[] aHvals = new double[len];
 		double[] iHvals = new double[len];
 		
 		
-		for(int i=0; i<len; i++){
+		for(int i=0; i<(len); i++){
 			aHvals[i] = Double.parseDouble(actual_vals[i]);
 			iHvals[i] = Double.parseDouble(interpolated_vals[i]);
 		}
 		
-		for(int i=0; i<len; i++)
+		for(int i=10; i<(10+gapLength); i++){
 			error += Math.abs(aHvals[i] - iHvals[i]);
-		for(int i=0; i<len; i++)
 			errorSq += Math.pow((aHvals[i] - iHvals[i]), 2);
+		}
 	}
 	
+
 	public double getErrorSq(){
 		return errorSq;
 	}
