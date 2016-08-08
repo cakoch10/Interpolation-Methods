@@ -216,11 +216,4 @@ The velocity model is an alternative method of interpolating trajectory points. 
 This package was modified so that it could convert a large set of desired trajectories to time series. Some of the previously described programs such as `getNum.java` and `writeToFile.java` were imported to this project so that the conversion could be completed.
 
 `Construct2DimCurve_v2.java` is the only original file that is modified. The only methods that have been added/altered are the `main()` and `mainS()` methods.
-=======
-`Construct2DimCurve_v2.java` is the only original file that is modified. The only methods that have been added/altered are the `main()` and `mainS()` methods.
-  
-  
-  
-  
-  
->>>>>>> origin/master
+
