@@ -6,6 +6,32 @@ import java.util.ArrayList;
 import main.tsError;
 import main.writeToFile;
 
+
+
+
+
+//Name of file: 20080619160000_TS_30038213.plt or 20080801023537_TS_200022428.plt or 20080927233805_TS_5013416.plt
+/*
+ * 
+ * getName = substring(0, 18)
+if(getName.length == 12)
+	return gaplength is substring(0,3)
+if(length is 13)
+	gaplength is sub(0,4)
+if(length is 11)
+	gaplength is sub(0,2)
+ */
+
+
+
+
+
+
+
+
+
+
+
 public class LoessErrorTS_General {
 	public static void main(String[] args){
 		//IGNORE THE NAMES OF FILES, THIS WAS COPIED AND MODIFIED
@@ -38,6 +64,7 @@ public class LoessErrorTS_General {
 			String actualPath = actualList[indexLin].getPath();
 			
 			name = name.substring(18, name.length()-11);//20070921120306_TS_100_Cubic_222281.plt
+			//20070921120306_TS_350_Loess_15031.plt
 			String[] name2 = name.split("_");
 			int gapLength = Integer.parseInt(name2[0]);
 			

@@ -50,16 +50,37 @@ public class testV {
        
         */
 		
-		File linearTS = new File("C:/test/trajectory2/Cubic_TS");
-			File[] linearTSList = linearTS.listFiles();
-			for(int i=0; i<1000; i=i+100){
+		File linearTS = new File("C:/test/trajectory2/Loess_TS");
+		File[] linearTSList = linearTS.listFiles();
+		for(int i=0; i<linearTSList.length; i++){
 			String name = linearTSList[i].getName();
-			name = name.substring(18, name.length()-11);//20070921120306_TS_100_Cubic_222281.plt
-			String[] name2 = name.split("_");
-			int gapLength = Integer.parseInt(name2[0]);
-			System.out.println(gapLength);
-			System.out.println(linearTSList[i].getName());
+			name = name.substring(18, name.length());
+			if(name.length() == 12)
+				System.out.println(i + " len: " + name.substring(0,3));
+			else if(name.length() == 13)
+				System.out.println(i + " len: " + name.substring(0,4));
+			else if(name.length() == 11)
+				System.out.println(i + " len: " + name.substring(0,2));
+			else
+				System.out.println("Error");
 		}
+		
+
+		//Name of file: 20080619160000_TS_30038213.plt or 20080801023537_TS_200022428.plt or 20080927233805_TS_5013416.plt
+		/*
+		 * 
+		 * getName = substring(0, 18)
+		if(getName.length == 12)
+			return gaplength is substring(0,3)
+		if(length is 13)
+			gaplength is sub(0,4)
+		if(length is 11)
+			gaplength is sub(0,2)
+		 */
+
+
+		
+		
         /*
         
         for(int i=0; i<paths.length; i++){

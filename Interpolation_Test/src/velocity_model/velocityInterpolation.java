@@ -47,6 +47,10 @@ public class velocityInterpolation {
 	        	getNum first = new getNum(lines[i]);
 	        	first.extract();
 	        	latitudes[i] = first.getLat();
+	        	if(!Double.isFinite(latitudes[i])){
+	        		System.out.println("original lat is nan at: " + i);
+	        		System.exit(0);
+	        	}
 	        	longitudes[i] = first.getLon();
 	        	times[i] = first.getTimeD();//store as the time of day in hours
 	        		
@@ -56,7 +60,9 @@ public class velocityInterpolation {
 	        		System.out.println("The total length is: " + len);
 	        		System.out.println("The latitude is: " + latitudes[i]);
 	        	}
+	        	
 	        	v getVelDir = new v(lines[i], lines[i+1]);
+	        	
 	        	directions[i] = getVelDir.getDir();//direction in degrees
 	        	velocities[i] = getVelDir.getVel();
 	        }
@@ -77,6 +83,7 @@ public class velocityInterpolation {
 	
 	
 	public String[] beginInterpolation(int[] gaps, double v){//an integer array with the indices of the first points of each gap
+		//v is the threshold value
 		int num_gaps = gaps.length;
 		int[] num_points = new int[num_gaps];//this will store the length (as in number of points to be interpolated) of each gap
 		vThreshold = v;
@@ -110,8 +117,6 @@ public class velocityInterpolation {
 		for(int i:num_points)
 			sum += i;
 		String[] new_list = new String[sum+len];//create a list of strings to house the answer list
-		
-		System.out.println("THE SUM IS: " + sum);
 		
 		count = 0;//use this as a second index for keeping track of which gaps have been incorporated into the string
 		//int count2 = 0;//uses this as a third index for keeping track of our location a gap being interpolated
@@ -160,9 +165,7 @@ public class velocityInterpolation {
 				String time = Double.toString(interpolated_values[2]);
 				
 				new_list[i] = lat + "," + lon + "," + "0,555," + time + ",2009-10-11,14:04:30";
-				
-				System.out.println(new_list[i]);
-				
+								
 				interpolated_lines.add(new_list[i]);
 				
 				//this next branch is necessary to update the indices of the beginning of future gaps that have not yet been interpolated
@@ -184,13 +187,17 @@ public class velocityInterpolation {
 
 	public int getMatch(int index){//returns the index of the match value
 		double vel1 = velocities[index];
-		int matchIndex=0;
+		int matchIndex=1;
 		
 		double[] differences = new double[len];
 				
 		for(int i = 0; i<len; i++){
 			if(i!=index){
-				differences[i] = Math.abs(vel1 - velocities[i]);//difference in velocity
+				if(velocities[i] == 0.0 || Double.isNaN(velocities[i])){
+					differences[i] = Math.pow(10.0, 10.0);//ensure that these indices won't be selected
+				}
+				else
+					differences[i] = Math.abs(vel1 - velocities[i]);//difference in velocity
 			}
 			else{
 				//set the difference at the known index to something ridiculously large so that it is not selected as a match
@@ -212,7 +219,7 @@ public class velocityInterpolation {
 		
 		if(potentialMatches.isEmpty()){
 			//this means we need to find the point with the closest velocity, or smallest distance
-			for(int i = 0; i<len; i++){
+			for(int i = 1; i<len; i++){
 				if(differences[i]<differences[matchIndex]){
 					matchIndex = i;
 				}
@@ -228,8 +235,16 @@ public class velocityInterpolation {
 			double t_act = times[index];//the time of the point of interest
 			
 			for(int i=0; i<potentialMatches.size(); i++){
-				timediffs[i] = Math.abs(t_act - times[potentialMatches.get(i)]);
-				indexes[i] = potentialMatches.get(i);
+				double tempdiff = Math.abs(t_act - times[potentialMatches.get(i)]);
+				
+				if(tempdiff == 0.0 || Double.isNaN(tempdiff)){
+					timediffs[i] = Math.pow(10.0, 10.0);//make sure these values aren't selected
+					indexes[i] = potentialMatches.get(i);
+				}
+				else{
+					timediffs[i] = Math.abs(t_act - times[potentialMatches.get(i)]);
+					indexes[i] = potentialMatches.get(i);
+				}
 			}
 			
 			int currentMin = 0;
@@ -297,6 +312,11 @@ public class velocityInterpolation {
 		double init_lat_y = latitudes[i_neighbor];
 		double init_vel = velocities[i_neighbor];
 		
+		if(!Double.isFinite(init_lat_y)){
+			System.out.println("init lat y is not finite");
+			System.exit(0);
+		}
+		
 		double hrs = 1.0/720.0;
 		double total_distance = hrs*init_vel+((acceleration*Math.pow(hrs, 2.0))/2.0);//distance in km
 				
@@ -325,6 +345,17 @@ public class velocityInterpolation {
 		
 		double[] values = new double[5];
 		values[0] = new_lat;
+		if(!Double.isFinite(new_lat)){
+			System.out.println("new lat is nan or infinity");
+			System.out.println(init_lat_y);
+			System.out.println(new_lat_y_km);
+			System.out.println("m: " + m);
+			System.out.println(x_change);
+			System.out.println(total_distance);
+			System.out.println(Math.cos(angle));
+			System.exit(0);
+		}
+		System.out.println(values[0]);
 		values[1] = new_lon;
 		values[2] = new_time;
 		values[3] = new_direction;
@@ -383,6 +414,11 @@ public class velocityInterpolation {
 		for(int i=0; i<longitudes.length+1; i++){
 			if(i == (index+1)){
 				temp_lat[i] = update_values[0];
+				if(!Double.isFinite(update_values[0])){
+					System.out.println("update not finite");
+					System.out.println(update_values[0]);
+					System.exit(0);
+				}
 				temp_long[i] = update_values[1];
 				temp_times[i] = update_values[2];
 				temp_direct[i] = update_values[3];
@@ -412,6 +448,16 @@ public class velocityInterpolation {
 		
 		longitudes = temp_long;
 		latitudes = temp_lat;
+		
+		for(double d:latitudes){
+			if(!Double.isFinite(d)){
+				System.out.println("Error in updated value");
+				System.out.println(temp_lat.length);
+				System.out.println(latitudes.length);
+				System.exit(0);
+			}
+		}
+		
 		times = temp_times;
 		directions = temp_direct;
 		velocities = temp_vel;
@@ -422,4 +468,99 @@ public class velocityInterpolation {
 	public ArrayList<String> getInterpolatedLines(){
 		return interpolated_lines;
 	}
+	
+	
+	//THIS SHOULD ONLY BE CALLED IF ONLY ONE GAP IS BEING INTERPOLATED	
+	public String[] beginInterpolation2(int[] gaps, double v, int points){//an integer array with the indices of the first points of each gap
+		//v is the threshold value
+		//points denotes the number of points to be interpolated
+		int num_gaps = gaps.length;
+		int[] num_points = new int[num_gaps];//this will store the length (as in number of points to be interpolated) of each gap
+		
+		num_points[0] = points;
+		
+		vThreshold = v;
+		
+		int count = 0;
+		
+		//find the sum of the gap lengths
+		int sum=0;
+		for(int i:num_points)
+			sum += i;
+		String[] new_list = new String[sum+len];//create a list of strings to house the answer list
+				
+		count = 0;//use this as a second index for keeping track of which gaps have been incorporated into the string
+		//int count2 = 0;//uses this as a third index for keeping track of our location a gap being interpolated
+		for(int i=0; i<new_list.length; i++){
+			//we need to check if i is in the range (gaps[count], gaps[count]+num_points[count]]
+			boolean is_outside;
+			int next_gap = -1;//set to default values
+			int next_gap_length = -1;//set to default values
+			
+			if(count>=gaps.length){
+				is_outside=true;
+			}
+			else{
+				next_gap = gaps[count];
+				next_gap_length = num_points[count];
+				is_outside = (i <= next_gap) || (i > (next_gap_length + next_gap));//returns true if i is outside the gap
+			}
+		
+			if(is_outside){
+				//if it's outside then we can just copy the contents from the list
+				if(i>=latitudes.length){
+					System.out.println("The value of i is: " + i);
+					System.out.println("The length of latitudes is " + latitudes.length);
+					System.out.println("The value of len is : " + len);
+				}
+				String lat = Double.toString(latitudes[i]);
+				String lon = Double.toString(longitudes[i]);
+				String time = Double.toString(times[i]);
+				
+				new_list[i] = lat + "," + lon + "," + "0,555," + time + ",2009-10-11,14:04:30";
+			}
+			else{
+				//we need to interpolate
+				//the nearest known neighbor on the lefthand side has an index of i-1
+				//this method assumes that we have updated all of the arrays after each interpolation
+				int match_index = getMatch(i-1);
+				double[] interpolated_values = new double[5];
+				interpolated_values = interpolate(match_index, i-1);
+				//UPDATE THE VALUES
+				update(interpolated_values, i-1);
+				//System.out.println("lat: " + interpolated_values[0]);
+				
+				String lat = Double.toString(interpolated_values[0]);
+				String lon = Double.toString(interpolated_values[1]);
+				String time = Double.toString(interpolated_values[2]);
+				
+				if(lat.equals("NaN")){
+					System.out.println("Error: lat is NaN");
+					System.out.println(i + " " + match_index);
+					System.exit(0);
+				}
+				
+				new_list[i] = lat + "," + lon + "," + "0,555," + time + ",2009-10-11,14:04:30";
+								
+				interpolated_lines.add(new_list[i]);
+				
+				//this next branch is necessary to update the indices of the beginning of future gaps that have not yet been interpolated
+				if(i == (next_gap_length + next_gap)){//check to see if we've reached the end of this particualr gap
+					for(int k = count+1; k < gaps.length; k++){
+						gaps[k] = gaps[k] + num_points[count];
+					}
+					count++;
+				}
+				//count2++;
+				/*if(count2 == num_points[count]-1){//if this is true, we have finished interpolating the particular gap at position count
+					count2=0;
+					count++;
+				}*/
+			}
+		}
+		return new_list;//the new list should be interpolated values AND original values
+	}
+
 }
+
+

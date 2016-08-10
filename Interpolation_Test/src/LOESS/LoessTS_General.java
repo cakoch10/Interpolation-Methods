@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-
-import cubic.SplineInterpolation;
 import main.writeToFile;
 
 public class LoessTS_General {
