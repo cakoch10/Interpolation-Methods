@@ -29,7 +29,7 @@ Typically each step is a separate java program.
 This package includes files related to cubic spline interpolation. It uses the [math library](http://commons.apache.org/proper/commons-math/) of [Apache Commons](http://commons.apache.org/) and implement a [natural cubic spline interpolator](http://www.math.drexel.edu/~tolya/cubicspline.pdf).
 
 * `CubicErrorTraj.java`
-  * **Summary**: Reads orignal trajectory files and cubic interpolated trajectories (located in the `Cubic_Traj` folder). Each pair of files (the actual trajectory and the corresponding interpolated trajectory) is compared using the `error` class. The kilometers, kilometers squared, and distance for each trajectory is stored in an array. This values are then written to a `.plt` file (specifically the `CubicErrorTraj.plt` file located in the `Error_Analysis` folder. Note that the distance returned is the total distance of the trajectory (rather than the distance of the interpolated gap).
+  * **Summary**: Reads orignal trajectory files and cubic interpolated trajectories (located in the `Cubic_Traj` folder). Each pair of files (the actual trajectory and the corresponding interpolated trajectory) is compared using the `error` class. The error (in kilometers), error squared (kilometers squared), and distance (km) for each trajectory is stored in an array. These values are then written to a `.plt` file (specifically the `CubicErrorTraj.plt` file located in the `Error_Analysis` folder. Note that the distance returned is the total distance of the trajectory (rather than the distance of the interpolated gap).
   * **Imports**: `error.java` and `writeToFile.java`; both are from the `main` package.
 * `CubicErrorTS.java`
   * **Summary**: Performs the same task as `CubicErrorTraj.java` except it uses `tsError.java` to calculate the error between two time series. Reads actual time series files from the folder `Original_TS` and reads the interpolated time series from the folder `Cubic_TS`. The final results for each file are written to the file `CubicTS.plt` in the `Error_Analysis` folder. 
@@ -81,6 +81,17 @@ This package includes the files that implement the linear and nearest neighbor i
 * `tsErrorMain.java`
   * **Summary**: Calculates error from linear and nearest neighbor time series. Reads from the folders `Original_TS`, `Lin_TS`, and `NN_TS`. Writes the error values to the `Error_Analysis` folder as `NNerror.plt` and `Linerror.plt`.
   * **Imports**: `tsError.java` and `writeToFile.java` (from main)
+
+### LOESS
+* `LoessErrorTrajGeneral.java`
+  * **Summary**: Reads original trajectory files and LOESS interpolated trajectories (located in the `Loess_Traj` folder). Each pair of files (the actual trajectory and the corresponding interpolated trajectory) is compared using the `error` class. The error (in kilometers), error squared (kilometers squared), and distance (km) for each trajectory is stored in an array. These values are then written to a `.plt` file (namely, the `LoessErrorTraj.plt` file located in the `Error_Analysis` folder. Note that the distance returned is the total distance of the trajectory rather than the distance of the interpolated gap.
+  * **Methods**:
+  * **Imports**:
+
+* `LoessErrorTS_General.java`
+* `LoessInterpolation.java`
+* `LoessTrajGeneral.java`
+* `LoessTS_General.java`
 
 
 ### `main`
