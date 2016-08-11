@@ -35,9 +35,12 @@ This package includes files related to cubic spline interpolation. It uses the [
   * **Imports**: `error.java` and `writeToFile.java`; both are from the `main` package.
 * `CubicErrorTrajGeneral.java`
   * **Summary**: Reads original trajectory files from the folder `OriginalTrajectories` and the interpolated trajectories from the folder `Cubic_Traj`. It calculates the cumulative error (km), error squared (km squared), and distance (of the entire original trajectory, km) for each original trajectory and the corresponding interpolated trajectory. Note that the file assumes the length of the interpolated gap is included in the filename after the first 15 characters. It's also important that the length is followed by an underscore character and at least 15 more characters (including the filename extension but excluding the aforementioned underscore). An example of a filename that would work is `20070921120306_50_13450_Cubic_Traj.plt` where 50 is the length of the gap.
+  * **Imports**: `error.java` and `writeToFile.java` from the `main` package.
 * `CubicErrorTS.java`
-  * **Summary**: Performs the same task as `CubicErrorTraj.java` except it uses `tsError.java` to calculate the error between two time series. Reads actual time series files from the folder `Original_TS` and reads the interpolated time series from the folder `Cubic_TS`. The final results for each file are written to the file `CubicTS.plt` in the `Error_Analysis` folder. 
+  * **Summary**: Performs the same task as `CubicErrorTraj.java` except it uses `tsError.java` to calculate the error between two time series. Reads actual time series files from the folder `Original_TS` and reads the interpolated time series from the folder `Cubic_TS`. The final results for each file are written to the file `CubicTS.plt` in the `Error_Analysis` folder.
   * **Imports**: `tsError.java` and `writeToFile.java`; both from the `main` package.
+* `CubicErrorTS_General.java`
+  * **Summary**: Performs the same error analysis as `CubicErrorTS` but reads the gap length from the file names. The gap length should be embedded in the filename as an integer and hsould be preceded by exactly 18 characters, followed by an underscore and then at least 11 more characters (including the file extension). An example of a valid filename is `20070921120306_TS_100_Cubic_222281.plt` where 100 is the size of the gap.
 * `CubicSplineMainTraj.java`
   * **Summary**: Gets the files in the folder `Trajectory_with_gaps` and applies the cubic spline interpolation method to filling in the gaps. Creates a new set of files and writes the files to the folder `Cubic_Traj`.
   * **Imports**: `ExtractLatLon.java` and `writeToFile.java`; both from `main`.
@@ -53,6 +56,12 @@ This package includes files related to cubic spline interpolation. It uses the [
     * `double[] interpolateTS()` - returns the interpolated time series as an array of doubles.
     * `int getNumInt` - can only be called after one of the interpolate methods. Returns the number of points that were interpolated.
   * **Imports**: `org.apache.commons.math3.analysis.UnivariateFunction`, `org.apache.commons.math3.analysis.interpolation.SplineInterpolator`,`org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator`, and `OrderPoints` (from the `main` package).
+* `cubicTS_General.java`
+  * **Summary**: Applies the cubic spline interpolator to a general set of files read from the folder `TS_Gaps`. Assumes that the gap size is embedded in the filename as an integer with 18 characters preceding it and 4 characters following it (the last four characters should be the filename extension, i.e. `.plt`).
+  * **Imports**: `writeToFile.java` from `main`.
+* `cubicTrajGeneral.java`
+  * **Summary**: Applies cubic spline interpolation to a set of trajectories with gaps. It is assumed that the gap length is embedded in the filename with exactly 15 characters preceding it. It should be followed only by the four character file extension.
+  * **Imports**: `ExtractLatLon.java` and `writeToFile.java` from the `main` folder.
 
 ### `linear_NearestNeighbor`
 This package includes the files that implement the linear and nearest neighbor interpolation methods. 
@@ -88,10 +97,10 @@ This package includes the files that implement the linear and nearest neighbor i
 
 ### LOESS
 * `LoessErrorTrajGeneral.java`
-  * **Summary**: Reads original trajectory files and LOESS interpolated trajectories (located in the `Loess_Traj` folder). Each pair of files (the actual trajectory and the corresponding interpolated trajectory) is compared using the `error` class. The error (in kilometers), error squared (kilometers squared), and distance (km) for each trajectory is stored in an array. These values are then written to a `.plt` file (namely, the `LoessErrorTraj.plt` file located in the `Error_Analysis` folder. Note that the distance returned is the total distance of the trajectory rather than the distance of the interpolated gap.
+  * **Summary**: Reads original trajectory files and LOESS interpolated trajectories (located in the `Loess_Traj` folder). Each pair of files (the actual trajectory and the corresponding interpolated trajectory) is compared using the `error` class. The error (in kilometers), error squared (kilometers squared), and distance (km) for each trajectory is stored in an array. These values are then written to a `.plt` file (namely, the `LoessErrorTraj.plt` file located in the `Error_Analysis` folder. Note that the distance returned is the total distance of the trajectory rather than the distance of the interpolated gap. Assumes the gap length is embedded in the filename after the first 15 characters and followed by an underscore and at least 15 characters.
   * **Imports**: `error.java` and `writeToFile.java`
 * `LoessErrorTS_General.java`
-  * **Summary**: Read original time series files and LOESS interpolated time series (located in the `Loess_TS` folder). Each pair of files (the original time series and the corresponding interpolated time series) is compared using the `tsError` class. The error (Hilberts), the error squared (Hilberts squared), and the legnth (number of points) are recorded in an array. The values are written to the `LoessTSError.plt` file in the `Error_Analysis` folder.
+  * **Summary**: Read original time series files and LOESS interpolated time series (located in the `Loess_TS` folder). Each pair of files (the original time series and the corresponding interpolated time series) is compared using the `tsError` class. The error (Hilberts), the error squared (Hilberts squared), and the legnth (number of points) are recorded in an array. The values are written to the `LoessTSError.plt` file in the `Error_Analysis` folder. Assumes the gap length is embedded in the filename after the first 18 characters and followed by an underscore and at least 11 characters.
   * **Imports**: `tsError.java` and `writeToFile.java`
 * `LoessInterpolation.java`
   * **Summary**: Provides an implementation of the LOESS interpolator using the Apache Commons Math library.
@@ -103,10 +112,10 @@ This package includes the files that implement the linear and nearest neighbor i
     * `double[] interpolateTS()` - applies the LOESS interpolator to the time series data. It returns the interpolated Hilbert values as an array of doubles. The function `setTS` must be called before this function.
   * **Imports**: the following from `org.apache.commons.math3.analysis`: `UnivariateFunction`, `interpolation.LoessInterpolator`, `interpolation.SplineInterpolator`, and `interpolation.UnivariateInterpolator`, along with `OrderPoints.java` from `main`.
 * `LoessTrajGeneral.java`
-  * **Summary**: This is the main file for interpolating trajectories with LOESS. It reads the trajectories with gaps from the `Trajectory_Gaps` folder and writes the interpolated files to the `Loess_Traj` file.
+  * **Summary**: This is the main file for interpolating trajectories with LOESS. It reads the trajectories with gaps from the `Trajectory_Gaps` folder and writes the interpolated files to the `Loess_Traj` file. Assumes the gap length is embedded in the file name directly before the four character file extension and directly after 15 characters.
   * **Imports**: `ExtractLatLon.java` and `writeToFile` from `main`.
 * `LoessTS_General.java`
-  * **Summary**: This program reads time series from the folder `TS_Gaps` and applies the LOESS interpolator to them. It writes the interpolated files to the folder `Loess_TS`.
+  * **Summary**: This program reads time series from the folder `TS_Gaps` and applies the LOESS interpolator to them. It writes the interpolated files to the folder `Loess_TS`. Assumes the gap length is embedded in the file name directly before the four character file extension and directly after 18 characters.
   * **Imports**: `writeToFile` from `main`.
 
 ### `main`
