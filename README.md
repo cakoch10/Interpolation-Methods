@@ -86,12 +86,19 @@ This package includes the files that implement the linear and nearest neighbor i
 * `LoessErrorTrajGeneral.java`
   * **Summary**: Reads original trajectory files and LOESS interpolated trajectories (located in the `Loess_Traj` folder). Each pair of files (the actual trajectory and the corresponding interpolated trajectory) is compared using the `error` class. The error (in kilometers), error squared (kilometers squared), and distance (km) for each trajectory is stored in an array. These values are then written to a `.plt` file (namely, the `LoessErrorTraj.plt` file located in the `Error_Analysis` folder. Note that the distance returned is the total distance of the trajectory rather than the distance of the interpolated gap.
   * **Imports**: `error.java` and `writeToFile.java`
-
 * `LoessErrorTS_General.java`
+  * **Summary**: Read original time series files and LOESS interpolated time series (located in the `Loess_TS` folder). Each pair of files (the original time series and the corresponding interpolated time series) is compared using the `tsError` class. The error (km), the error squared (km squared), and the legnth (number of points) are recorded in an array. The values are written to the `LoessTSError.plt` file in the `Error_Analysis` folder.
+  * **Imports**: `tsError.java` and `writeToFile.java`
 * `LoessInterpolation.java`
+  * **Summary**: Provides an implementation of the LOESS interpolator using the Apache Commons Math library.
+  * **Methods**:
+    * **Constructor** `LoessInterpolation(int)` - the constructor consists of a single integer representing the length of the gap to be interpolated.
+    * `setTraj(string, string)` - this function takes two string parameters which represent the latitude and longitude values (both strings should be a series of values separated by commas). Call this function if interpolating trajectories.
+    * `setTS(double[])` - this function sets the time series to be interpolated. The parameter must be an array of doubles representing the Hilbert values.
+    * `string[] interpolateTraj()` - applies the LOESS interpolator to the trajectory data. It returns the interpolated values in the GeoLife format as an array of strings with each element of the array denoting a single data value. The function `setTraj` must be called before this function.
 * `LoessTrajGeneral.java`
 * `LoessTS_General.java`
-
+sed to pass the trajectory data. Two string parameters: one is the latitude values while the other is the longitude values (both should be comma seperated values stored as a single string).
 
 ### `main`
 This package includes general programs that are used by other files to execute specific tasks.
