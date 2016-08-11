@@ -85,8 +85,7 @@ This package includes the files that implement the linear and nearest neighbor i
 ### LOESS
 * `LoessErrorTrajGeneral.java`
   * **Summary**: Reads original trajectory files and LOESS interpolated trajectories (located in the `Loess_Traj` folder). Each pair of files (the actual trajectory and the corresponding interpolated trajectory) is compared using the `error` class. The error (in kilometers), error squared (kilometers squared), and distance (km) for each trajectory is stored in an array. These values are then written to a `.plt` file (namely, the `LoessErrorTraj.plt` file located in the `Error_Analysis` folder. Note that the distance returned is the total distance of the trajectory rather than the distance of the interpolated gap.
-  * **Methods**:
-  * **Imports**:
+  * **Imports**: `error.java` and `writeToFile.java`
 
 * `LoessErrorTS_General.java`
 * `LoessInterpolation.java`
