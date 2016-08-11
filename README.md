@@ -126,7 +126,7 @@ This package includes general programs that are used by other files to execute s
 * `tsError.java`
   * **Summary**: Reads two files of time series values and calculates the difference between the two (error)
   * **Methods**:
-    * **Constructor** `tsError(string, string, boolean, boolean)` - the first sting provides the filepath for the actual time series values while the second string is the filepath for the interpolated time series. The first boolean denotes whether the file's values are separated by commas (when set to true), and the second denotes the same style but for the interpolated time series.
+    * **Constructor** `tsError(string, string, boolean, boolean, int)` - the first sting provides the filepath for the actual time series values while the second string is the filepath for the interpolated time series. The first boolean denotes whether the file's values are separated by commas (when set to true), and the second denotes the same style but for the interpolated time series. The final value is an integer representing the gap length of the trajectory or time series (i.e. the number of interpolated points).
     * `double getErrorSq()` - returns the error squared
     * `double getError()` - returns the total error
     * `int getLen()` - returns the length of the time series or the number of points
