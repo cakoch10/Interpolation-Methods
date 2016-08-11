@@ -96,9 +96,14 @@ This package includes the files that implement the linear and nearest neighbor i
     * `setTraj(string, string)` - this function takes two string parameters which represent the latitude and longitude values (both strings should be a series of values separated by commas). Call this function if interpolating trajectories.
     * `setTS(double[])` - this function sets the time series to be interpolated. The parameter must be an array of doubles representing the Hilbert values.
     * `string[] interpolateTraj()` - applies the LOESS interpolator to the trajectory data. It returns the interpolated values in the GeoLife format as an array of strings with each element of the array denoting a single data value. The function `setTraj` must be called before this function.
+    * `double[] interpolateTS()` - applies the LOESS interpolator to the time series data. It returns the interpolated Hilbert values as an array of doubles. The function `setTS` must be called before this function.
+  * **Imports**: the following from `org.apache.commons.math3.analysis`: `UnivariateFunction`, `interpolation.LoessInterpolator`, `interpolation.SplineInterpolator`, and `interpolation.UnivariateInterpolator`, along with `OrderPoints.java` from `main`.
 * `LoessTrajGeneral.java`
+  * **Summary**: This is the main file for interpolating trajectories with LOESS. It reads the trajectories with gaps from the `Trajectory_Gaps` folder and writes the interpolated files to the `Loess_Traj` file.
+  * **Imports**: `ExtractLatLon.java` and `writeToFile` from `main`.
 * `LoessTS_General.java`
-sed to pass the trajectory data. Two string parameters: one is the latitude values while the other is the longitude values (both should be comma seperated values stored as a single string).
+  * **Summary**: This program reads time series from the folder `TS_Gaps` and applies the LOESS interpolator to them. It writes the interpolated files to the folder `Loess_TS`.
+  * **Imports**: `writeToFile` from `main`.
 
 ### `main`
 This package includes general programs that are used by other files to execute specific tasks.
