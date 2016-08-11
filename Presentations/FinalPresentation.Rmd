@@ -1,0 +1,727 @@
+---
+title: "Methods of Interpolation for Pattern Mining"
+author: Caleb Koch
+date: August 2016
+output:
+  revealjs::revealjs_presentation:
+    incremental: true
+    transition: slide
+    theme: simple
+    css: styleCSS.css
+    self_contained: false
+    reveal_plugins: ["notes"]
+---
+
+# Background - What is pattern mining? {.position}
+
+##Pattern mining
+- Similarities in sequential datasets
+<br><br>
+
+<div class="fragment">
+### Pattern Mining Project
+</div>
+
+<div class="fragment">
+Spatiotemporal moving object trajectories
+</div>
+
+<div class="fragment">
+Large, noisy data
+</div>
+
+<div class="fragment">
+Hidden, nontrivial patterns and relationships (including associations between trajectories)
+</div>
+
+##mSEQUITUR
+```{r echo=FALSE, fig.height=5}
+library(png)
+library(grid)
+img <- readPNG("FlowDiagram.png")
+ grid.raster(img)
+```
+
+##Data Collection
+GeoLife Data
+
+39.906631,116.385564,0,492,40097.5864583333,2009-10-11,14:04:30
+
+```{r, echo=FALSE, warning=FALSE, fig.height=3.5, width=3}
+
+v = read.table("20080927233805.plt", header = FALSE, quote = "\"", skip = 6, sep=",")
+x1 <- v$V2
+y1 <- v$V1
+
+library(ggplot2)
+
+ggplot(aes(x = x1, y = y1, color="black"), data=v) + geom_point(size=0.5, color="#070688") + labs(x = "Longitude", y = "Latitude") + ggtitle("Example Trajectory")
+```
+
+##Alternative View
+```{r, echo = FALSE, fig.height=6, fig.width=9}
+library(scatterplot3d)
+
+v = read.table("20080927233805.plt", header = FALSE, quote = "\"", skip = 6, sep=",")
+x1 <- v$V1
+y1 <- v$V2
+z1 <- v$V5
+
+scatterplot3d(x1, y1, z1, xlab = "Latitude", ylab = "Longitude", zlab = "Time",  label.tick.marks=FALSE)
+```
+
+##Example of a Time Series
+```{r, echo=FALSE, warning=FALSE, fig.height=6}
+ts <- scan("~/FinalPresentation/20080927233805_TS.plt", what = integer(), sep = ",")
+plot(ts, ylab = "Hilbert Value", pch=16, cex = 0.5)
+```
+
+## Problem Overview
+
+<div class="fragment">
+Identify potential interpolation methods
+</div>
+
+<div class="fragment">
+Assess interpolation methods
+</div>
+
+<div class="fragment">
+Determine effects at different preprocessing stages
+</div>
+
+
+## Motivation
+- Linearly interpolating trajectories yields large errors
+<div class="fragment">
+```{r, fig=TRUE, echo=FALSE, cache=TRUE, fig.height=5, fig.align='center'}
+linearData3 = read.table("C:/test/lin3.txt", header = FALSE, quote = "\"", skip = 0, sep="\t")
+xl3 <- linearData3$V1
+yl3 <- linearData3$V2
+
+trajData3 = read.table("C:/test/traj3.txt")
+xt3 <- trajData3$V1
+yt3 <- trajData3$V2
+
+library(ggplot2)
+
+t4 <- ggplot(aes(x = xl3, y = yl3, color="black"), data=linearData3) + geom_point(size=0.5, color="#070688") + geom_point(size=0.5, aes(x = xt3, y = yt3), color="#898da9", data=trajData3)  + geom_line(aes(x = xt3, y = yt3), color="#898da9", data=trajData3) + labs(x = "Longitude", y = "Latitude") + ggtitle("Sample Trajectory")
+
+t4
+```
+</div>
+
+# Search and Experimentation - How do we compare interpolation methods? {.position}
+
+## Initial Search
+- Pre-existing methods of interpolation
+    - Local versus global (problems associated with distinction)
+- Development of velocity-based model
+    - Exploits acceleration and directional change to interpolate new points
+    - Computationally intensive
+    - Parameter optimization
+
+##Interpolation Methods to Test
+- Nearest Neighbor
+- Linear
+- Cubic Spline
+- Polynomial
+- Local regression (LOESS)
+
+##Standard Experimentation
+- Standard framework to assess accuracy across models (at different preprocessing stages)
+<br><br>
+<div class="fragment">
+**General outline**:
+<ol>
+  <li>Select a sample of trajectories and generate artificial gaps</li>
+  <li>Use interpolation methods to fill gaps in both trajectories and time series</li>
+  <li>Run error analysis</li>
+  <li>Compare errors by calculating representative inaccuracies</li>
+</ol>
+</div>
+
+## Artificial Gaps: Example (563 KB)
+
+```{r, echo=FALSE, fig=TRUE, cache=TRUE, warning=FALSE}
+orig <- read.csv("C:/test/trajectory2/20090120055702.plt", sep=",", skip = 6)
+f <- read.csv("C:/test/trajectory2/20090120055702_50.plt", sep=",", skip = 6)
+o <- read.csv("C:/test/trajectory2/20090120055702_1000.plt", sep=",", skip = 6)
+t <- read.csv("C:/test/trajectory2/20090120055702_2000.plt", sep=",", skip = 6)
+
+x1 <- orig$X116.322061
+y1 <- orig$X40.010435
+
+x2 <- f$X116.322061
+y2 <- f$X40.010435
+
+x3 <- o$X116.322061
+y3 <- o$X40.010435
+
+x4 <- t$X116.322061
+y4 <- t$X40.010435
+
+library(ggplot2)
+# qplot(trajData$V1, trajData$V2, ylab = "Latitude", xlab = "Longitude")
+
+t1 <- ggplot(aes(x = x1, y = y1, color="black"), data=orig) + geom_point(size=0.5, color="#070688") + labs(x = "Longitude", y = "Latitude") + ggtitle("Original Trajectory")
+
+t2 <- ggplot(aes(x = x2, y = y2, color="black"), data=f) + geom_point(size=0.5, color="#070688") + labs(x = "Longitude", y = "Latitude") + ggtitle("First Gap Length (50)")
+
+t3 <- ggplot(aes(x = x3, y = y3, color="black"), data=o) + geom_point(size=0.5, color="#070688") + labs(x = "Longitude", y = "Latitude") + ggtitle("Second Gap Length (1000)")
+
+t4 <- ggplot(aes(x = x4, y = y4, color="black"), data=t) + geom_point(size=0.5, color="#070688") + labs(x = "Longitude", y = "Latitude") + ggtitle("Third Gap Length (2000)")
+
+library(grid)
+library(gridExtra)
+grid.arrange(t1, t2, t3, t4, ncol=2)
+```
+
+# Results - What did our analysis show? {.position}
+
+## Performance comparison
+
+```{r, echo=FALSE, fig=TRUE, cache=TRUE, warning=FALSE, fig.width=11, fig.height=7}
+CubicErrorTraj <- read.csv("C:/test/trajectory2/Error_Analysis/CubicErrorTraj.plt", header=FALSE)
+colnames(CubicErrorTraj) <- c("file", "error", "errorSquared", "length")
+
+LinerrorTraj <- read.csv("C:/test/trajectory2/Error_Analysis/LinerrorTraj.plt", header=FALSE)
+colnames(LinerrorTraj) <- c("file", "error", "errorSquared", "length")
+
+NNerrorTraj <- read.csv("C:/test/trajectory2/Error_Analysis/NNerrorTraj.plt", header=FALSE)
+colnames(NNerrorTraj) <- c("file", "error", "errorSquared", "length")
+
+CubicTSError <- read.csv("C:/test/trajectory2/Error_Analysis/CubicTSError.plt", header=FALSE)
+colnames(CubicTSError) <- c("file", "error", "errorSquared", "length")
+
+LinerrorTS <- read.csv("C:/test/trajectory2/Error_Analysis/LinerrorTS.plt", header=FALSE)
+colnames(LinerrorTS) <- c("file", "error", "errorSquared", "length")
+
+NNerrorTS <- read.csv("C:/test/trajectory2/Error_Analysis/NNerrorTS.plt", header=FALSE)
+colnames(NNerrorTS) <- c("file", "error", "errorSquared", "length")
+
+totalDistance <- read.csv("C:/test/trajectory2/Error_Analysis/totalDistance.plt", header=FALSE)
+colnames(totalDistance) <- c("trajectory", "timeSeries", "file")
+
+LoessErrorTraj <- read.csv("C:/test/trajectory2/Error_Analysis/LoessErrorTraj.plt", header = FALSE)
+colnames(LoessErrorTraj) <- c("file", "error", "errorSquared", "length")
+
+
+LinerrorTS <- lapply(LinerrorTS, function(x){
+  gsub("_TS", "", x)
+})
+
+NNerrorTS <- lapply(NNerrorTS, function(x){
+  gsub("_TS", "", x)
+})
+
+LinerrorTraj <- lapply(LinerrorTraj, function(x){
+  gsub("_LinInt_Traj.plt", "", x)
+})
+
+# Format CubicErrorTraj
+
+CubicErrorTraj <- lapply(CubicErrorTraj, function(x){
+  sub("_", "@", x)
+})
+
+test <- data.frame(do.call('rbind', strsplit(as.character(CubicErrorTraj$file),'_',fixed = TRUE)))
+
+test <- lapply(test, function(x){
+  sub("@", "_", x)
+})
+
+CubicErrorTraj$file <- test$X1
+
+
+# Format LoessErrorTraj -----------------------------------------------------------
+
+LoessErrorTraj <- lapply(LoessErrorTraj, function(x){
+  sub("_", "@", x)
+})
+
+test <- data.frame(do.call('rbind', strsplit(as.character(LoessErrorTraj$file),'_',fixed = TRUE)))
+
+test <- lapply(test, function(x){
+  sub("@", "_", x)
+})
+
+LoessErrorTraj$file <- test$X1
+
+# Format CubicTSError
+
+CubicTSError <- lapply(CubicTSError, function(x){
+  sub("_", "@", x)
+})
+
+CubicTSError <- lapply(CubicTSError, function(x){
+  sub("_", "@", x)
+})
+
+test <- data.frame(do.call('rbind', strsplit(as.character(CubicTSError$file),'_',fixed = TRUE)))
+
+test <- lapply(test, function(x){
+  sub("@TS@", "_", x)
+})
+
+CubicTSError$file <- test$X1
+
+# Merge Files
+NNerrorTS <- merge(totalDistance, NNerrorTS, by.x = "file", by.y = "file")
+NNerrorTraj <- merge(totalDistance, NNerrorTraj, by.x = "file", by.y = "file")
+CubicTSError <- merge(totalDistance, CubicTSError, by.x = "file", by.y = "file")
+CubicErrorTraj <- merge(totalDistance, CubicErrorTraj, by.x = "file", by.y = "file")
+LinerrorTraj <- merge(totalDistance, LinerrorTraj, by.x = "file", by.y = "file")
+LinerrorTS <- merge(totalDistance, LinerrorTS, by.x = "file", by.y = "file")
+LoessErrorTraj <- merge(totalDistance, LoessErrorTraj, by.x = "file", by.y = "file")
+
+# Add Gap Lengths
+
+test <- data.frame(do.call('rbind', strsplit(as.character(NNerrorTS$file),'_',fixed = TRUE)))
+NNerrorTS$Gaps <- test$X2
+
+test <- data.frame(do.call('rbind', strsplit(as.character(NNerrorTraj$file),'_',fixed = TRUE)))
+NNerrorTraj$Gaps <- test$X2
+
+test <- data.frame(do.call('rbind', strsplit(as.character(CubicTSError$file),'_',fixed = TRUE)))
+CubicTSError$Gaps <- test$X2
+
+test <- data.frame(do.call('rbind', strsplit(as.character(CubicErrorTraj$file),'_',fixed = TRUE)))
+CubicErrorTraj$Gaps <- test$X2
+
+test <- data.frame(do.call('rbind', strsplit(as.character(LinerrorTraj$file),'_',fixed = TRUE)))
+LinerrorTraj$Gaps <- test$X2
+
+test <- data.frame(do.call('rbind', strsplit(as.character(LinerrorTS$file),'_',fixed = TRUE)))
+LinerrorTS$Gaps <- test$X2
+
+test <- data.frame(do.call('rbind', strsplit(as.character(LoessErrorTraj$file),'_',fixed = TRUE)))
+LoessErrorTraj$Gaps <- test$X2
+
+# Add inaccuracy
+NNerrorTS$error <- as.numeric(as.character(NNerrorTS$error))
+NNerrorTraj$error <- as.numeric(as.character(NNerrorTraj$error))
+CubicTSError$error <- as.numeric(as.character(CubicTSError$error))
+CubicErrorTraj$error <- as.numeric(as.character(CubicErrorTraj$error))
+LinerrorTraj$error <- as.numeric(as.character(LinerrorTraj$error))
+LinerrorTS$error <- as.numeric(as.character(LinerrorTS$error))
+LoessErrorTraj$error <- as.numeric(as.character(LoessErrorTraj$error))
+
+NNerrorTS$timeSeries <- as.numeric(as.character(NNerrorTS$timeSeries))
+CubicTSError$timeSeries <- as.numeric(as.character(CubicTSError$timeSeries))
+LinerrorTS$timeSeries <- as.numeric(as.character(LinerrorTS$timeSeries))
+
+NNerrorTraj$trajectory <- as.numeric(as.character(NNerrorTraj$trajectory))
+CubicErrorTraj$trajectory <- as.numeric(as.character(CubicErrorTraj$trajectory))
+LinerrorTraj$trajectory <- as.numeric(as.character(LinerrorTraj$trajectory))
+LoessErrorTraj$trajectory <- as.numeric(as.character(LoessErrorTraj$trajectory))
+
+NNerrorTS$Inaccuracy <- NNerrorTS$error / NNerrorTS$timeSeries
+CubicTSError$Inaccuracy <- CubicTSError$error / CubicTSError$timeSeries
+LinerrorTS$Inaccuracy <- LinerrorTS$error / LinerrorTS$timeSeries
+
+NNerrorTraj$Inaccuracy <- NNerrorTraj$error / NNerrorTraj$trajectory
+CubicErrorTraj$Inaccuracy <- CubicErrorTraj$error / CubicErrorTraj$trajectory
+LinerrorTraj$Inaccuracy <- LinerrorTraj$error / LinerrorTraj$trajectory
+LoessErrorTraj$Inaccuracy <- LoessErrorTraj$error / LoessErrorTraj$trajectory
+
+
+# Convert Gaps to numeric
+NNerrorTS$Gaps <- as.numeric(as.character(NNerrorTS$Gaps))
+NNerrorTraj$Gaps <- as.numeric(as.character(NNerrorTraj$Gaps))
+CubicTSError$Gaps <- as.numeric(as.character(CubicTSError$Gaps))
+CubicErrorTraj$Gaps <- as.numeric(as.character(CubicErrorTraj$Gaps))
+LinerrorTraj$Gaps <- as.numeric(as.character(LinerrorTraj$Gaps))
+LinerrorTS$Gaps <- as.numeric(as.character(LinerrorTS$Gaps))
+LoessErrorTraj$Gaps <- as.numeric(as.character(LoessErrorTraj$Gaps))
+
+# Get average of inaccuracies
+x <- c(seq(from = 50, to = 2000, by = 50))
+y <- x+2000
+df <- data.frame(x, y)
+for(i in seq(from = 50, to = 2000, by = 50)){
+  test2 <- subset(NNerrorTS, NNerrorTS$Gaps==i)
+  tempVal <- i+2000
+  df[df==tempVal] <- mean(test2$Inaccuracy)
+}
+NNerrorTS2 <- df
+
+x <- c(seq(from = 50, to = 2000, by = 50))
+y <- x+2000
+df <- data.frame(x, y)
+for(i in seq(from = 50, to = 2000, by = 50)){
+  test2 <- subset(NNerrorTraj, NNerrorTraj$Gaps==i)
+  tempVal <- i+2000
+  df[df==tempVal] <- mean(test2$Inaccuracy)
+}
+NNerrorTraj2 <- df
+
+x <- c(seq(from = 50, to = 2000, by = 50))
+y <- x+2000
+df <- data.frame(x, y)
+for(i in seq(from = 50, to = 2000, by = 50)){
+  test2 <- subset(CubicTSError, CubicTSError$Gaps==i)
+  tempVal <- i+2000
+  df[df==tempVal] <- mean(test2$Inaccuracy)
+}
+CubicTSError2 <- df
+
+x <- c(seq(from = 50, to = 2000, by = 50))
+y <- x+2000
+df <- data.frame(x, y)
+for(i in seq(from = 50, to = 2000, by = 50)){
+  test2 <- subset(CubicErrorTraj, CubicErrorTraj$Gaps==i)
+  tempVal <- i+2000
+  df[df==tempVal] <- mean(test2$Inaccuracy)
+}
+CubicErrorTraj2 <- df
+
+x <- c(seq(from = 50, to = 2000, by = 50))
+y <- x+2000
+df <- data.frame(x, y)
+for(i in seq(from = 50, to = 2000, by = 50)){
+  test2 <- subset(LinerrorTraj, LinerrorTraj$Gaps==i)
+  tempVal <- i+2000
+  df[df==tempVal] <- mean(test2$Inaccuracy)
+}
+LinerrorTraj2 <- df
+
+x <- c(seq(from = 50, to = 2000, by = 50))
+y <- x+2000
+df <- data.frame(x, y)
+for(i in seq(from = 50, to = 2000, by = 50)){
+  test2 <- subset(LinerrorTS, LinerrorTS$Gaps==i)
+  tempVal <- i+2000
+  df[df==tempVal] <- mean(test2$Inaccuracy)
+}
+LinerrorTS2 <- df
+
+x <- c(seq(from = 50, to = 2000, by = 50))
+y <- x+2000
+df <- data.frame(x, y)
+for(i in seq(from = 50, to = 2000, by = 50)){
+  test2 <- subset(LoessErrorTraj, LoessErrorTraj$Gaps==i)
+  tempVal <- i+2000
+  df[df==tempVal] <- mean(test2$Inaccuracy)
+}
+LoessErrorTraj2 <- df
+
+#Visualize Total Error
+library(ggplot2)
+
+df <- data.frame(NNerrorTS2$x, NNerrorTS2$y, NNerrorTraj2$y, CubicErrorTraj2$y, CubicTSError2$y, LinerrorTS2$y, LinerrorTraj2$y, LoessErrorTraj2$y)
+
+
+ggplot(df, aes(NNerrorTS2$x, y=value, color=Method)) + labs(x="Gap Length", y="Inaccuracy")  + geom_point(aes(y=LinerrorTraj2$y, col="Linear (Trajectory)"), size=1.5) +geom_point(aes(y=CubicErrorTraj2$y,col="Cubic (Trajectory)"), size=1.5)+ geom_point(aes(y=NNerrorTraj2$y,col="N. Neighbor (Trajectory)"), size=1.5) + geom_point(aes(y=LinerrorTS2$y, col="Linear (TS)"), size=1.5) + geom_point(aes(y=NNerrorTS2$y,col="N. Neighbor (TS)"), size=1.5) + geom_point(aes(y=CubicTSError2$y,col="Cubic (TS)"), size=1.5) + geom_point(aes(y=LoessErrorTraj2$y,col="LOESS (Trajectory)"), size=1.5) + geom_line(aes(x = LinerrorTraj2$x, y = LinerrorTraj2$y), color="#53B400", data=LinerrorTraj2, size=0.5) + geom_line(aes(x = NNerrorTraj2$x, y = NNerrorTraj2$y), color="#A58AFF", data=NNerrorTraj2, size=0.5) + geom_line(aes(x = LinerrorTS2$x, y = LinerrorTS2$y), color="#00C094", data=LinerrorTS2, size=0.5) + geom_line(aes(x = NNerrorTS2$x, y = NNerrorTS2$y), color="#FB61D7", data=NNerrorTS2, size=0.5) + geom_line(aes(x = CubicTSError2$x, y = CubicTSError2$y), color="#C49A00", data = CubicTSError2, size = 0.5) + geom_line(aes(x = CubicErrorTraj2$x, y = CubicErrorTraj2$y), color="#F8766D", data = CubicErrorTraj2, size = 0.5) + geom_line(aes(x = LoessErrorTraj2$x, y = LoessErrorTraj2$y), color="#00B6EB", data = LoessErrorTraj2, size = 0.5)
+```
+
+## Comparison (excluding outlier results)
+
+```{r, echo=FALSE, fig=TRUE, cache=TRUE, warning=FALSE, fig.width=11, fig.height=7}
+CubicErrorTraj <- read.csv("C:/test/trajectory2/Error_Analysis/CubicErrorTraj.plt", header=FALSE)
+colnames(CubicErrorTraj) <- c("file", "error", "errorSquared", "length")
+
+LinerrorTraj <- read.csv("C:/test/trajectory2/Error_Analysis/LinerrorTraj.plt", header=FALSE)
+colnames(LinerrorTraj) <- c("file", "error", "errorSquared", "length")
+
+NNerrorTraj <- read.csv("C:/test/trajectory2/Error_Analysis/NNerrorTraj.plt", header=FALSE)
+colnames(NNerrorTraj) <- c("file", "error", "errorSquared", "length")
+
+CubicTSError <- read.csv("C:/test/trajectory2/Error_Analysis/CubicTSError.plt", header=FALSE)
+colnames(CubicTSError) <- c("file", "error", "errorSquared", "length")
+
+LinerrorTS <- read.csv("C:/test/trajectory2/Error_Analysis/LinerrorTS.plt", header=FALSE)
+colnames(LinerrorTS) <- c("file", "error", "errorSquared", "length")
+
+NNerrorTS <- read.csv("C:/test/trajectory2/Error_Analysis/NNerrorTS.plt", header=FALSE)
+colnames(NNerrorTS) <- c("file", "error", "errorSquared", "length")
+
+totalDistance <- read.csv("C:/test/trajectory2/Error_Analysis/totalDistance.plt", header=FALSE)
+colnames(totalDistance) <- c("trajectory", "timeSeries", "file")
+
+
+LinerrorTS <- lapply(LinerrorTS, function(x){
+  gsub("_TS", "", x)
+})
+
+NNerrorTS <- lapply(NNerrorTS, function(x){
+  gsub("_TS", "", x)
+})
+
+LinerrorTraj <- lapply(LinerrorTraj, function(x){
+  gsub("_LinInt_Traj.plt", "", x)
+})
+
+# Format CubicErrorTraj
+
+CubicErrorTraj <- lapply(CubicErrorTraj, function(x){
+  sub("_", "@", x)
+})
+
+test <- data.frame(do.call('rbind', strsplit(as.character(CubicErrorTraj$file),'_',fixed = TRUE)))
+
+test <- lapply(test, function(x){
+  sub("@", "_", x)
+})
+
+CubicErrorTraj$file <- test$X1
+
+# Format CubicTSError
+
+CubicTSError <- lapply(CubicTSError, function(x){
+  sub("_", "@", x)
+})
+
+CubicTSError <- lapply(CubicTSError, function(x){
+  sub("_", "@", x)
+})
+
+test <- data.frame(do.call('rbind', strsplit(as.character(CubicTSError$file),'_',fixed = TRUE)))
+
+test <- lapply(test, function(x){
+  sub("@TS@", "_", x)
+})
+
+CubicTSError$file <- test$X1
+
+# Merge Files
+NNerrorTS <- merge(totalDistance, NNerrorTS, by.x = "file", by.y = "file")
+
+NNerrorTraj <- merge(totalDistance, NNerrorTraj, by.x = "file", by.y = "file")
+
+CubicTSError <- merge(totalDistance, CubicTSError, by.x = "file", by.y = "file")
+
+CubicErrorTraj <- merge(totalDistance, CubicErrorTraj, by.x = "file", by.y = "file")
+
+LinerrorTraj <- merge(totalDistance, LinerrorTraj, by.x = "file", by.y = "file")
+
+LinerrorTS <- merge(totalDistance, LinerrorTS, by.x = "file", by.y = "file")
+
+
+# Add Gap Lengths
+
+test <- data.frame(do.call('rbind', strsplit(as.character(NNerrorTS$file),'_',fixed = TRUE)))
+NNerrorTS$Gaps <- test$X2
+
+test <- data.frame(do.call('rbind', strsplit(as.character(NNerrorTraj$file),'_',fixed = TRUE)))
+NNerrorTraj$Gaps <- test$X2
+
+test <- data.frame(do.call('rbind', strsplit(as.character(CubicTSError$file),'_',fixed = TRUE)))
+CubicTSError$Gaps <- test$X2
+
+test <- data.frame(do.call('rbind', strsplit(as.character(CubicErrorTraj$file),'_',fixed = TRUE)))
+CubicErrorTraj$Gaps <- test$X2
+
+test <- data.frame(do.call('rbind', strsplit(as.character(LinerrorTraj$file),'_',fixed = TRUE)))
+LinerrorTraj$Gaps <- test$X2
+
+test <- data.frame(do.call('rbind', strsplit(as.character(LinerrorTS$file),'_',fixed = TRUE)))
+LinerrorTS$Gaps <- test$X2
+
+# Add inaccuracy
+NNerrorTS$error <- as.numeric(as.character(NNerrorTS$error))
+NNerrorTraj$error <- as.numeric(as.character(NNerrorTraj$error))
+CubicTSError$error <- as.numeric(as.character(CubicTSError$error))
+CubicErrorTraj$error <- as.numeric(as.character(CubicErrorTraj$error))
+LinerrorTraj$error <- as.numeric(as.character(LinerrorTraj$error))
+LinerrorTS$error <- as.numeric(as.character(LinerrorTS$error))
+
+NNerrorTS$timeSeries <- as.numeric(as.character(NNerrorTS$timeSeries))
+CubicTSError$timeSeries <- as.numeric(as.character(CubicTSError$timeSeries))
+LinerrorTS$timeSeries <- as.numeric(as.character(LinerrorTS$timeSeries))
+
+NNerrorTraj$trajectory <- as.numeric(as.character(NNerrorTraj$trajectory))
+CubicErrorTraj$trajectory <- as.numeric(as.character(CubicErrorTraj$trajectory))
+LinerrorTraj$trajectory <- as.numeric(as.character(LinerrorTraj$trajectory))
+
+NNerrorTS$Inaccuracy <- NNerrorTS$error / NNerrorTS$timeSeries
+CubicTSError$Inaccuracy <- CubicTSError$error / CubicTSError$timeSeries
+LinerrorTS$Inaccuracy <- LinerrorTS$error / LinerrorTS$timeSeries
+
+NNerrorTraj$Inaccuracy <- NNerrorTraj$error / NNerrorTraj$trajectory
+CubicErrorTraj$Inaccuracy <- CubicErrorTraj$error / CubicErrorTraj$trajectory
+LinerrorTraj$Inaccuracy <- LinerrorTraj$error / LinerrorTraj$trajectory
+
+
+# Convert Gaps to numeric
+NNerrorTS$Gaps <- as.numeric(as.character(NNerrorTS$Gaps))
+NNerrorTraj$Gaps <- as.numeric(as.character(NNerrorTraj$Gaps))
+CubicTSError$Gaps <- as.numeric(as.character(CubicTSError$Gaps))
+CubicErrorTraj$Gaps <- as.numeric(as.character(CubicErrorTraj$Gaps))
+LinerrorTraj$Gaps <- as.numeric(as.character(LinerrorTraj$Gaps))
+LinerrorTS$Gaps <- as.numeric(as.character(LinerrorTS$Gaps))
+
+# Get average of inaccuracies
+x <- c(seq(from = 50, to = 2000, by = 50))
+y <- x+2000
+df <- data.frame(x, y)
+for(i in seq(from = 50, to = 2000, by = 50)){
+  test2 <- subset(NNerrorTS, NNerrorTS$Gaps==i)
+  tempVal <- i+2000
+  df[df==tempVal] <- mean(test2$Inaccuracy)
+}
+NNerrorTS2 <- df
+
+x <- c(seq(from = 50, to = 2000, by = 50))
+y <- x+2000
+df <- data.frame(x, y)
+for(i in seq(from = 50, to = 2000, by = 50)){
+  test2 <- subset(NNerrorTraj, NNerrorTraj$Gaps==i)
+  tempVal <- i+2000
+  df[df==tempVal] <- mean(test2$Inaccuracy)
+}
+NNerrorTraj2 <- df
+
+x <- c(seq(from = 50, to = 2000, by = 50))
+y <- x+2000
+df <- data.frame(x, y)
+for(i in seq(from = 50, to = 2000, by = 50)){
+  test2 <- subset(CubicTSError, CubicTSError$Gaps==i)
+  tempVal <- i+2000
+  df[df==tempVal] <- mean(test2$Inaccuracy)
+}
+CubicTSError2 <- df
+
+x <- c(seq(from = 50, to = 2000, by = 50))
+y <- x+2000
+df <- data.frame(x, y)
+for(i in seq(from = 50, to = 2000, by = 50)){
+  test2 <- subset(CubicErrorTraj, CubicErrorTraj$Gaps==i)
+  tempVal <- i+2000
+  df[df==tempVal] <- mean(test2$Inaccuracy)
+}
+CubicErrorTraj2 <- df
+
+x <- c(seq(from = 50, to = 2000, by = 50))
+y <- x+2000
+df <- data.frame(x, y)
+for(i in seq(from = 50, to = 2000, by = 50)){
+  test2 <- subset(LinerrorTraj, LinerrorTraj$Gaps==i)
+  tempVal <- i+2000
+  df[df==tempVal] <- mean(test2$Inaccuracy)
+}
+LinerrorTraj2 <- df
+
+x <- c(seq(from = 50, to = 2000, by = 50))
+y <- x+2000
+df <- data.frame(x, y)
+for(i in seq(from = 50, to = 2000, by = 50)){
+  test2 <- subset(LinerrorTS, LinerrorTS$Gaps==i)
+  tempVal <- i+2000
+  df[df==tempVal] <- mean(test2$Inaccuracy)
+}
+LinerrorTS2 <- df
+
+
+#Visualize Total Error
+library(ggplot2)
+
+df <- data.frame(NNerrorTS2$x, NNerrorTS2$y, NNerrorTraj2$y, CubicErrorTraj2$y, CubicTSError2$y, LinerrorTS2$y, LinerrorTraj2$y)
+
+ggplot(df, aes(NNerrorTS2$x, y=value, color=Method)) + labs(x="Gap Length", y="Inaccuracy") + geom_point(aes(y=LinerrorTraj2$y, col="Linear (Trajectory)"), size=1.5) + geom_point(aes(y=NNerrorTraj2$y,col="N. Neighbor (Trajectory)"), size=1.5) + geom_point(aes(y=LinerrorTS2$y, col="Linear (TS)"), size=1.5) + geom_point(aes(y=NNerrorTS2$y,col="N. Neighbor (TS)"), size=1.5) + geom_point(aes(y=CubicTSError2$y,col="Cubic (TS)"), size=1.5) + geom_line(aes(x = LinerrorTraj2$x, y = LinerrorTraj2$y), color="#C49A00", data=LinerrorTraj2, size=0.5) + geom_line(aes(x = NNerrorTraj2$x, y = NNerrorTraj2$y), color="#00B6EB", data=NNerrorTraj2, size=0.5) + geom_line(aes(x = LinerrorTS2$x, y = LinerrorTS2$y), color="#00C094", data=LinerrorTS2, size=0.5) + geom_line(aes(x = NNerrorTS2$x, y = NNerrorTS2$y), color="#FB61D7", data=NNerrorTS2, size=0.5) + geom_line(aes(x = CubicTSError2$x, y = CubicTSError2$y), color="#F8766D", data = CubicTSError2, size = 0.5)
+```
+
+
+<aside class="notes">
+- Each method performed better when applied to time series data
+- Error increases with gap length (exception: cubic trajectory)
+- Linear and nearest neighbor returned similar results
+- Nearest neighbor interpolation with time series data returned lowest errors
+</aside>
+
+# Concluding Remarks - What did we learn? {.position}
+
+
+## Significance of work
+
+- Standardized experimental methodology
+    - Reproducibility and comparative analysis
+- Implementation of procedures (accessibility of code)
+- Documentation
+    - Adaptability and mutability
+- Data
+    - Analysis
+    - Availability
+- Relation to pattern mining project
+    - Comparative basis for performance analysis
+- Use of nearest neighbor interpolation
+- Development of global interpolation method
+
+## Considerations for future research
+
+- Automatic parameter estimation and model refinement
+- Linearization via Azimuths (alternate preprocessing steps)
+- Adaptive interpolation
+- Analyzing other components of data
+
+##Experience {.columns-2}
+<div style="float: left; width: 50%;">
+- R
+    - Data analysis and visualization
+    - RStudio
+    - R Markdown
+- Java
+    - EGit
+    - Dependency management
+    - Software development
+</div>
+
+<div style="float: right; width: 50%;">
+- Beamer
+    - Beamer and R with Sweave
+    - Typesetting pseudocode
+- Rendering github flavored markdown docs with pandoc
+- Presentations with R Markdown and reveal.js (rendered with knitr)
+- Interpolation
+</div>
+
+## {data-background="cornell_6.jpg"}
+
+## {data-background="winter2.jpg"}
+
+## Acknowledgements {.position}
+
+<aside class="notes">
+  Academy of Applied Science, the Army Educational Outreach Program, the Geospatial Research Laboratory, my mentor and all of those at GRL who helped make this internship possible
+</aside>
+---
+
+
+
+
+<!-- -->
+<!-- <div class="center"> -->
+<!-- ```{r, echo=FALSE} -->
+<!-- library(diagram) -->
+<!-- library(shape) -->
+<!-- par(mar = c(1, 1, 1, 1), mfrow = c(1, 1, 1)) -->
+<!-- names <- c("A", "B", "C") -->
+<!-- M <- matrix(nrow = 3, ncol = 1, byrow = FALSE, data = 0) -->
+<!-- M[3, 2] <- M[2, 1] <-"" -->
+<!-- plotmat(M, pos = c(1, 1, 1), name = names, box.type = "square") -->
+<!-- ``` -->
+<!-- </div> -->
+
+<!-- ## -->
+<!-- ```{r, echo=FALSE, figure=FALSE} -->
+<!-- library(DiagrammeR) -->
+<!-- the_nodes <-  -->
+<!--   create_nodes( -->
+<!--     nodes = 1:5, -->
+<!--     label = c("Data Collection","Linearization","Discretization","Grammar Induction","Motif Discovery")) -->
+<!-- the_edges <-  -->
+<!--   create_edges( -->
+<!--     from = c(1, 2, 3, 4), -->
+<!--     to   = c(2, 3, 4, 5)) -->
+<!-- the_graph <-  -->
+<!--   create_graph( -->
+<!--     nodes_df = the_nodes, -->
+<!--     edges_df = the_edges) -->
+
+<!-- render_graph(create_graph(edges_df = the_edges,nodes_df = the_nodes),width = 800, height = 700) -->
+<!-- ``` -->
+<!-- --> 
+
+
+<!-- ggplot(df, aes(NNerrorTS2$x, y=value, color=Method)) + labs(x="Gap Length", y="Inaccuracy")  + geom_point(aes(y=LinerrorTraj2$y, col="Linear (Trajectory)"), size=1.5) +geom_point(aes(y=CubicErrorTraj2$y,col="Cubic (Trajectory)"), size=1.5)+ geom_point(aes(y=NNerrorTraj2$y,col="N. Neighbor (Trajectory)"), size=1.5) + geom_point(aes(y=LinerrorTS2$y, col="Linear (TS)"), size=1.5) + geom_point(aes(y=NNerrorTS2$y,col="N. Neighbor (TS)"), size=1.5) + geom_point(aes(y=CubicTSError2$y,col="Cubic (TS)"), size=1.5) + geom_point(aes(y=LoessErrorTraj2$y,col="LOESS (Trajectory)"), size=1.5) + geom_line(aes(x = LinerrorTraj2$x, y = LinerrorTraj2$y), color="#00BA38", data=LinerrorTraj2, size=0.5) + geom_line(aes(x = NNerrorTraj2$x, y = NNerrorTraj2$y), color="#619CFF", data=NNerrorTraj2, size=0.5) + geom_line(aes(x = LinerrorTS2$x, y = LinerrorTS2$y), color="#00BFC4", data=LinerrorTS2, size=0.5) + geom_line(aes(x = NNerrorTS2$x, y = NNerrorTS2$y), color="#FB61D7", data=NNerrorTS2, size=0.5) + geom_line(aes(x = CubicTSError2$x, y = CubicTSError2$y), color="#C49A00", data = CubicTSError2, size = 0.5) + geom_line(aes(x = CubicErrorTraj2$x, y = CubicErrorTraj2$y), color="#F8766D", data = CubicErrorTraj2, size = 0.5) + geom_line(aes(x = LoessErrorTraj2$x, y = LoessErrorTraj2$y), color="#00BFC4", data = LoessErrorTraj2, size = 0.5) + scale_fill_manual(breaks=c("Cubic (Trajectory)","LOESS (Trajectory)","N. Neighbor (TS)", "Linear (Trajectory)", "Cubic (TS)", "N. Neighbor (TS)", "Linear (TS)"), labels=c("Cubic (Trajectory)","LOESS (Trajectory)","N. Neighbor (TS)", "Linear (Trajectory)", "Cubic (TS)", "N. Neighbor (TS)", "Linear (TS)"))-->
+

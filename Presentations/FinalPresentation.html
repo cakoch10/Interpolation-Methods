@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="Caleb Koch" />
+  <title>Methods of Interpolation for Pattern Mining</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="FinalPresentation_files/reveal.js-3.3.0/css/reveal.css"/>
+
+
+
+<link rel="stylesheet" href="FinalPresentation_files/reveal.js-3.3.0/css/theme/simple.css" id="theme">
+
+
+  <!-- some tweaks to reveal css -->
+  <style type="text/css">
+    .reveal h1 { font-size: 2.0em; }
+    .reveal h2 { font-size: 1.5em;  }
+    .reveal h3 { font-size: 1.25em;	}
+    .reveal h4 { font-size: 1em;	}
+
+    .reveal .slides>section,
+    .reveal .slides>section>section {
+      padding: 0px 0px;
+    }
+
+
+
+    .reveal table {
+      border-width: 1px;
+      border-spacing: 2px;
+      border-style: dotted;
+      border-color: gray;
+      border-collapse: collapse;
+      font-size: 0.7em;
+    }
+
+    .reveal table th {
+      border-width: 1px;
+      padding-left: 10px;
+      padding-right: 25px;
+      font-weight: bold;
+      border-style: dotted;
+      border-color: gray;
+    }
+
+    .reveal table td {
+      border-width: 1px;
+      padding-left: 10px;
+      padding-right: 25px;
+      border-style: dotted;
+      border-color: gray;
+    }
+
+  </style>
+
+    <style type="text/css">code{white-space: pre;}</style>
+
+    <link rel="stylesheet" href="styleCSS.css"/>
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'FinalPresentation_files/reveal.js-3.3.0/css/print/pdf.css' : 'FinalPresentation_files/reveal.js-3.3.0/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+    <!--[if lt IE 9]>
+    <script src="FinalPresentation_files/reveal.js-3.3.0/lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Methods of Interpolation for Pattern Mining</h1>
+    <h2 class="author">Caleb Koch</h2>
+    <h3 class="date">August 2016</h3>
+</section>
+
+<section><section id="background---what-is-pattern-mining" class="titleslide slide level1 position"><h1>Background - What is pattern mining?</h1></section><section id="pattern-mining" class="slide level2">
+<h1>Pattern mining</h1>
+<ul>
+<li class="fragment">Similarities in sequential datasets <br><br></li>
+</ul>
+<div class="fragment">
+<h3 id="pattern-mining-project">Pattern Mining Project</h3>
+</div>
+<div class="fragment">
+<p>Spatiotemporal moving object trajectories</p>
+</div>
+<div class="fragment">
+<p>Large, noisy data</p>
+</div>
+<div class="fragment">
+<p>Hidden, nontrivial patterns and relationships (including associations between trajectories)</p>
+</div>
+</section><section id="msequitur" class="slide level2">
+<h1>mSEQUITUR</h1>
+<p><img src="FinalPresentation_files/figure-revealjs/unnamed-chunk-1-1.png" width="768" /></p>
+</section><section id="data-collection" class="slide level2">
+<h1>Data Collection</h1>
+<p>GeoLife Data</p>
+<p>39.906631,116.385564,0,492,40097.5864583333,2009-10-11,14:04:30</p>
+<p><img src="FinalPresentation_files/figure-revealjs/unnamed-chunk-2-1.png" width="768" /></p>
+</section><section id="alternative-view" class="slide level2">
+<h1>Alternative View</h1>
+<p><img src="FinalPresentation_files/figure-revealjs/unnamed-chunk-3-1.png" width="864" /></p>
+</section><section id="example-of-a-time-series" class="slide level2">
+<h1>Example of a Time Series</h1>
+<p><img src="FinalPresentation_files/figure-revealjs/unnamed-chunk-4-1.png" width="768" /></p>
+</section><section id="problem-overview" class="slide level2">
+<h1>Problem Overview</h1>
+<div class="fragment">
+<p>Identify potential interpolation methods</p>
+</div>
+<div class="fragment">
+<p>Assess interpolation methods</p>
+</div>
+<div class="fragment">
+<p>Determine effects at different preprocessing stages</p>
+</div>
+</section><section id="motivation" class="slide level2">
+<h1>Motivation</h1>
+<ul>
+<li class="fragment">Linearly interpolating trajectories yields large errors
+<div class="fragment">
+<p><img src="FinalPresentation_files/figure-revealjs/unnamed-chunk-5-1.png" width="768" style="display: block; margin: auto;" /></p>
+</div></li>
+</ul>
+</section></section>
+<section><section id="search-and-experimentation---how-do-we-compare-interpolation-methods" class="titleslide slide level1 position"><h1>Search and Experimentation - How do we compare interpolation methods?</h1></section><section id="initial-search" class="slide level2">
+<h1>Initial Search</h1>
+<ul>
+<li class="fragment">Pre-existing methods of interpolation
+<ul>
+<li class="fragment">Local versus global (problems associated with distinction)</li>
+</ul></li>
+<li class="fragment">Development of velocity-based model
+<ul>
+<li class="fragment">Exploits acceleration and directional change to interpolate new points</li>
+<li class="fragment">Computationally intensive</li>
+<li class="fragment">Parameter optimization</li>
+</ul></li>
+</ul>
+</section><section id="interpolation-methods-to-test" class="slide level2">
+<h1>Interpolation Methods to Test</h1>
+<ul>
+<li class="fragment">Nearest Neighbor</li>
+<li class="fragment">Linear</li>
+<li class="fragment">Cubic Spline</li>
+<li class="fragment">Polynomial</li>
+<li class="fragment">Local regression (LOESS)</li>
+</ul>
+</section><section id="standard-experimentation" class="slide level2">
+<h1>Standard Experimentation</h1>
+<ul>
+<li class="fragment">Standard framework to assess accuracy across models (at different preprocessing stages) <br><br>
+<div class="fragment">
+<strong>General outline</strong>:
+<ol>
+<li>
+Select a sample of trajectories and generate artificial gaps
+</li>
+<li>
+Use interpolation methods to fill gaps in both trajectories and time series
+</li>
+<li>
+Run error analysis
+</li>
+<li>
+Compare errors by calculating representative inaccuracies
+</li>
+</ol>
+</div></li>
+</ul>
+</section><section id="artificial-gaps-example-563-kb" class="slide level2">
+<h1>Artificial Gaps: Example (563 KB)</h1>
+<p><img src="FinalPresentation_files/figure-revealjs/unnamed-chunk-6-1.png" width="768" /></p>
+</section></section>
+<section><section id="results---what-did-our-analysis-show" class="titleslide slide level1 position"><h1>Results - What did our analysis show?</h1></section><section id="performance-comparison" class="slide level2">
+<h1>Performance comparison</h1>
+<p><img src="FinalPresentation_files/figure-revealjs/unnamed-chunk-7-1.png" width="1056" /></p>
+</section><section id="comparison-excluding-outlier-results" class="slide level2">
+<h1>Comparison (excluding outlier results)</h1>
+<p><img src="FinalPresentation_files/figure-revealjs/unnamed-chunk-8-1.png" width="1056" /></p>
+<aside class="notes">
+<ul>
+<li class="fragment">Each method performed better when applied to time series data</li>
+<li class="fragment">Error increases with gap length (exception: cubic trajectory)</li>
+<li class="fragment">Linear and nearest neighbor returned similar results</li>
+<li class="fragment">Nearest neighbor interpolation with time series data returned lowest errors</li>
+</ul>
+</aside>
+</section></section>
+<section><section id="concluding-remarks---what-did-we-learn" class="titleslide slide level1 position"><h1>Concluding Remarks - What did we learn?</h1></section><section id="significance-of-work" class="slide level2">
+<h1>Significance of work</h1>
+<ul>
+<li class="fragment">Standardized experimental methodology
+<ul>
+<li class="fragment">Reproducibility and comparative analysis</li>
+</ul></li>
+<li class="fragment">Implementation of procedures (accessibility of code)</li>
+<li class="fragment">Documentation
+<ul>
+<li class="fragment">Adaptability and mutability</li>
+</ul></li>
+<li class="fragment">Data
+<ul>
+<li class="fragment">Analysis</li>
+<li class="fragment">Availability</li>
+</ul></li>
+<li class="fragment">Relation to pattern mining project
+<ul>
+<li class="fragment">Comparative basis for performance analysis</li>
+</ul></li>
+<li class="fragment">Use of nearest neighbor interpolation</li>
+<li class="fragment">Development of global interpolation method</li>
+</ul>
+</section><section id="considerations-for-future-research" class="slide level2">
+<h1>Considerations for future research</h1>
+<ul>
+<li class="fragment">Automatic parameter estimation and model refinement</li>
+<li class="fragment">Linearization via Azimuths (alternate preprocessing steps)</li>
+<li class="fragment">Adaptive interpolation</li>
+<li class="fragment">Analyzing other components of data</li>
+</ul>
+</section><section id="experience" class="slide level2 columns-2">
+<h1>Experience</h1>
+<div style="float: left; width: 50%;">
+<ul>
+<li class="fragment">R
+<ul>
+<li class="fragment">Data analysis and visualization</li>
+<li class="fragment">RStudio</li>
+<li class="fragment">R Markdown</li>
+</ul></li>
+<li class="fragment">Java
+<ul>
+<li class="fragment">EGit</li>
+<li class="fragment">Dependency management</li>
+<li class="fragment">Software development</li>
+</ul></li>
+</ul>
+</div>
+<div style="float: right; width: 50%;">
+<ul>
+<li class="fragment">Beamer
+<ul>
+<li class="fragment">Beamer and R with Sweave</li>
+<li class="fragment">Typesetting pseudocode</li>
+</ul></li>
+<li class="fragment">Rendering github flavored markdown docs with pandoc</li>
+<li class="fragment">Presentations with R Markdown and reveal.js (rendered with knitr)</li>
+<li class="fragment">Interpolation</li>
+</ul>
+</div>
+</section><section id="section" class="slide level2" data-background="cornell_6.jpg">
+<h1></h1>
+</section><section id="section-1" class="slide level2" data-background="winter2.jpg">
+<h1></h1>
+</section><section id="acknowledgements" class="slide level2 position">
+<h1>Acknowledgements</h1>
+<aside class="notes">
+Academy of Applied Science, the Army Educational Outreach Program, the Geospatial Research Laboratory, my mentor and all of those at GRL who helped make this internship possible
+</aside>
+</section><section class="slide level2">
+
+<!-- -->
+<!-- <div class="center"> -->
+<!-- ```{r, echo=FALSE} -->
+<!-- library(diagram) -->
+<!-- library(shape) -->
+<!-- par(mar = c(1, 1, 1, 1), mfrow = c(1, 1, 1)) -->
+<!-- names <- c("A", "B", "C") -->
+<!-- M <- matrix(nrow = 3, ncol = 1, byrow = FALSE, data = 0) -->
+<!-- M[3, 2] <- M[2, 1] <-"" -->
+<!-- plotmat(M, pos = c(1, 1, 1), name = names, box.type = "square") -->
+<!-- ``` -->
+<!-- </div> -->
+<!-- ## -->
+<!-- ```{r, echo=FALSE, figure=FALSE} -->
+<!-- library(DiagrammeR) -->
+<!-- the_nodes <-  -->
+<!--   create_nodes( -->
+<!--     nodes = 1:5, -->
+<!--     label = c("Data Collection","Linearization","Discretization","Grammar Induction","Motif Discovery")) -->
+<!-- the_edges <-  -->
+<!--   create_edges( -->
+<!--     from = c(1, 2, 3, 4), -->
+<!--     to   = c(2, 3, 4, 5)) -->
+<!-- the_graph <-  -->
+<!--   create_graph( -->
+<!--     nodes_df = the_nodes, -->
+<!--     edges_df = the_edges) -->
+<!-- render_graph(create_graph(edges_df = the_edges,nodes_df = the_nodes),width = 800, height = 700) -->
+<!-- ``` -->
+<!-- -->
+<!-- ggplot(df, aes(NNerrorTS2$x, y=value, color=Method)) + labs(x="Gap Length", y="Inaccuracy")  + geom_point(aes(y=LinerrorTraj2$y, col="Linear (Trajectory)"), size=1.5) +geom_point(aes(y=CubicErrorTraj2$y,col="Cubic (Trajectory)"), size=1.5)+ geom_point(aes(y=NNerrorTraj2$y,col="N. Neighbor (Trajectory)"), size=1.5) + geom_point(aes(y=LinerrorTS2$y, col="Linear (TS)"), size=1.5) + geom_point(aes(y=NNerrorTS2$y,col="N. Neighbor (TS)"), size=1.5) + geom_point(aes(y=CubicTSError2$y,col="Cubic (TS)"), size=1.5) + geom_point(aes(y=LoessErrorTraj2$y,col="LOESS (Trajectory)"), size=1.5) + geom_line(aes(x = LinerrorTraj2$x, y = LinerrorTraj2$y), color="#00BA38", data=LinerrorTraj2, size=0.5) + geom_line(aes(x = NNerrorTraj2$x, y = NNerrorTraj2$y), color="#619CFF", data=NNerrorTraj2, size=0.5) + geom_line(aes(x = LinerrorTS2$x, y = LinerrorTS2$y), color="#00BFC4", data=LinerrorTS2, size=0.5) + geom_line(aes(x = NNerrorTS2$x, y = NNerrorTS2$y), color="#FB61D7", data=NNerrorTS2, size=0.5) + geom_line(aes(x = CubicTSError2$x, y = CubicTSError2$y), color="#C49A00", data = CubicTSError2, size = 0.5) + geom_line(aes(x = CubicErrorTraj2$x, y = CubicErrorTraj2$y), color="#F8766D", data = CubicErrorTraj2, size = 0.5) + geom_line(aes(x = LoessErrorTraj2$x, y = LoessErrorTraj2$y), color="#00BFC4", data = LoessErrorTraj2, size = 0.5) + scale_fill_manual(breaks=c("Cubic (Trajectory)","LOESS (Trajectory)","N. Neighbor (TS)", "Linear (Trajectory)", "Cubic (TS)", "N. Neighbor (TS)", "Linear (TS)"), labels=c("Cubic (Trajectory)","LOESS (Trajectory)","N. Neighbor (TS)", "Linear (Trajectory)", "Cubic (TS)", "N. Neighbor (TS)", "Linear (TS)"))-->
+</section></section>
+    </div>
+  </div>
+
+  <script src="FinalPresentation_files/reveal.js-3.3.0/lib/js/head.min.js"></script>
+  <script src="FinalPresentation_files/reveal.js-3.3.0/js/reveal.js"></script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        // Push each slide change to the browser history
+        history: true,
+        // Vertical centering of slides
+        center: false,
+        // Transition style
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+        // Transition style for full page slide backgrounds
+        backgroundTransition: 'default', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: 'FinalPresentation_files/reveal.js-3.3.0/plugin/notes/notes.js', async: true },
+        ]
+      });
+    </script>
+  <!-- dynamically load mathjax for compatibility with self-contained -->
+  <script>
+    (function () {
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+      document.getElementsByTagName("head")[0].appendChild(script);
+    })();
+  </script>
+
+<script>
+  (function() {
+    if (window.jQuery) {
+      Reveal.addEventListener( 'slidechanged', function(event) {  
+        window.jQuery(event.previousSlide).trigger('hidden');
+        window.jQuery(event.currentSlide).trigger('shown');
+      });
+    }
+  })();
+</script>
+
+
+  </body>
+</html>
