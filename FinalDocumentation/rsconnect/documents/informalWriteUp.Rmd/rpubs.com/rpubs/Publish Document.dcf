@@ -1,0 +1,7 @@
+name: Publish Document
+account: rpubs
+server: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/201635/e1a6fe824fe74cfaa66f163098131abf
+bundleId: https://api.rpubs.com/api/v1/document/201635/e1a6fe824fe74cfaa66f163098131abf
+url: http://rpubs.com/Caleb_Koch/201635
+when: 1470940424.51243
