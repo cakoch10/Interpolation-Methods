@@ -248,7 +248,17 @@ The velocity model is an alternative method of interpolating trajectory points. 
   * **Imports**: `getNum.java`
 
 ### `roughness`
-This package includes two programs that were used to calculate the roughness of trajectories.
+This package includes two programs that were used to calculate the roughness of trajectories. Essentially roughness is calculated as the aggregate directional change between pairs of points divided by the number of points (giving the average directional change per point).
+
+* `calculateRoughness.java`
+  * **Summary**: This program reads a trajectory file and calculates the total roughness.
+  * **Methods**:
+    * **Constructor** `calculateRoughness(string)` - the string represents the path of the trajectory file.
+    * `double getRoughness()` - returns the roughness as a double.
+  * **Imports**: `v.java` from the `velocity_model` package.
+* `roughnessGeneral.java`
+  * **Summary**: This program reads all of the trajectory files from the folder `Trajectory_Gaps` and calculates the roughness for each one. It writes the output to the file `roughness.plt` in the folder `Error_Analysis`.
+  * **Imports**: `writeToFile.java` from the `main` package.
 
 
 ###`com.space.filling.curve`
