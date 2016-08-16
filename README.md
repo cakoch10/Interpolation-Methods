@@ -246,7 +246,11 @@ The velocity model is an alternative method of interpolating trajectory points. 
     * `update(double[], int)` - updates the member variables with the given array of doubles (in the form {latitude, longitude, time, direction, velocity}). Inserts the new values after the point at the given integer index.
     * `ArrayList<String> getInterpolatedLines()` - returns a list of the interpolated points (in the GeoLife data format)
   * **Imports**: `getNum.java`
-  
+
+### `roughness`
+This package includes two programs that were used to calculate the roughness of trajectories.
+
+
 ###`com.space.filling.curve`
 This package was modified so that it could convert a large set of desired trajectories to time series. Some of the previously described programs such as `getNum.java` and `writeToFile.java` were imported to this project so that the conversion could be completed.
 
