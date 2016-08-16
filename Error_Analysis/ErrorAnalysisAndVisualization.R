@@ -241,7 +241,6 @@ ggplot(df, aes(NNerrorTS2$x, y=value, color=Method)) + labs(x="Gap Length", y="I
 ggplot(df, aes(NNerrorTS2$x, y=value, color=Method)) + labs(x="Gap Length", y="Inaccuracy") + ggtitle("Comparing Inaccuracy (without Cubic Trajectory)")  + geom_point(aes(y=LinerrorTraj2$y, col="Linear (Trajectory)"), size=0.5) + geom_point(aes(y=NNerrorTraj2$y,col="N. Neighbor (Trajectory)"), size=0.5) + geom_point(aes(y=LinerrorTS2$y, col="Linear (TS)"), size=0.5) + geom_point(aes(y=NNerrorTS2$y,col="N. Neighbor (TS)"), size=0.5) + geom_point(aes(y=CubicTSError2$y,col="Cubic (TS)"), size=0.5) + geom_line(aes(x = LinerrorTraj2$x, y = LinerrorTraj2$y), color="#C49A00", data=LinerrorTraj2, size=0) + geom_line(aes(x = NNerrorTraj2$x, y = NNerrorTraj2$y), color="#00B6EB", data=NNerrorTraj2, size=0) + geom_line(aes(x = LinerrorTS2$x, y = LinerrorTS2$y), color="#00C094", data=LinerrorTS2, size=0) + geom_line(aes(x = NNerrorTS2$x, y = NNerrorTS2$y), color="#FB61D7", data=NNerrorTS2, size=0) + geom_line(aes(x = CubicTSError2$x, y = CubicTSError2$y), color="#F8766D", data = CubicTSError2, size = 0)
 
 
-
 # Write to CSV
 
 df <- data.frame(NNerrorTS2$x, NNerrorTS2$y, NNerrorTraj2$y, CubicTSError2$y, CubicErrorTraj2$y, LoessErrorTraj2$y, LinerrorTS2$y, LinerrorTraj2$y)
